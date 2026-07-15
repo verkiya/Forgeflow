@@ -78,6 +78,7 @@ import {
   CommandList,
 } from "@/components/ui/command"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from "sonner"
 
 const Section = ({
   title,
@@ -890,6 +891,85 @@ export default function DesignSystemPage() {
                 </CardContent>
               </Card>
             </div>
+          </div>
+        </Section>
+
+        {/* ── TOASTS ── */}
+        <Section
+          title="Toasts & Notifications"
+          description="Sonner toast variants for user feedback."
+        >
+          <div className="flex flex-wrap items-center gap-4 rounded-xl border bg-card p-6 shadow-sm">
+            <Button
+              variant="outline"
+              onClick={() => toast("Event has been created.")}
+            >
+              Default
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() =>
+                toast("Event has been created.", {
+                  description: "Sunday, December 03, 2023 at 9:00 AM",
+                })
+              }
+            >
+              Description
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => toast.success("Event has been created.")}
+            >
+              Success
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => toast.info("Be at the area 10 minutes early.")}
+            >
+              Info
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() =>
+                toast.warning("Event start time cannot be earlier than 8am.")
+              }
+            >
+              Warning
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => toast.error("Event has not been created.")}
+            >
+              Error
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() =>
+                toast("Event has been created", {
+                  action: {
+                    label: "Undo",
+                    onClick: () => console.log("Undo"),
+                  },
+                })
+              }
+            >
+              Action
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                const promise = new Promise((resolve) =>
+                  setTimeout(resolve, 2000)
+                )
+                toast.promise(promise, {
+                  loading: "Loading...",
+                  success: "Success!",
+                  error: "Error",
+                })
+              }}
+            >
+              Promise
+            </Button>
           </div>
         </Section>
 
