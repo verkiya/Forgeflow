@@ -1,0 +1,19 @@
+import { SidebarTrigger } from "@/components/ui/sidebar"
+import { WorkflowShell } from "@/features/workflows/components/workflow-shell"
+
+export default async function WorkflowPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+
+  return (
+    <div className="flex min-h-svh flex-col">
+      {/* Top bar */}
+      <div className="flex items-center gap-2 border-b p-2">
+        <SidebarTrigger />
+      </div>
+
+      <div className="flex-1 overflow-hidden min-h-0">
+        <WorkflowShell workflowId={id} />
+      </div>
+    </div>
+  )
+}

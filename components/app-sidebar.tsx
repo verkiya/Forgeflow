@@ -10,9 +10,13 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar"
+import { auth } from "@clerk/nextjs/server"
+import { listWorkflows } from "@/features/workflows/data"
 import { WorkflowNav } from "@/features/workflows/components/workflow-nav"
+export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { orgId } = await auth();
+  const workflows = orgId ? await listWorkflows(orgId) : [];
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" variant="inset" {...props}>
       {/* ── Header: Org Switcher ── */}
@@ -27,7 +31,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   elements: {
                     rootBox:
                       "!w-full !h-12 border-1 rounded-xl group-data-[collapsible=icon]:border-transparent",
-                    avatarBox: "!size-6 !rounded-sm ml-2 group-data-[collapsible=icon]:ml-0",
+                    avatarBox:
+                      "!size-6 !rounded-sm ml-2 group-data-[collapsible=icon]:ml-0",
                     organizationSwitcherTrigger:
                       "!w-full !justify-start group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2",
                     organizationPreview:
@@ -46,7 +51,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
       {/* ── Content: Workflow List ── */}
       <SidebarContent>
-        <WorkflowNav />
+        <WorkflowNav workflows={workflows} />
       </SidebarContent>
 
       {/* ── Footer: User Button ── */}
@@ -65,7 +70,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     "!w-full !flex-row-reverse !justify-end !gap-2 group-data-[collapsible=icon]:!justify-center !text-sidebar-foreground",
                   userButtonOuterIdentifier:
                     "!pl-0 group-data-[collapsible=icon]:!hidden",
-                  avatarBox: "!size-4 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:rounded-xl!",
+                  avatarBox:
+                    "!size-4 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:rounded-xl!",
                 },
               }}
             />
@@ -73,7 +79,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarFooter>
 
-      <SidebarRail className="!cursor-col-resize"/>
+      <SidebarRail className="!cursor-col-resize" />
     </Sidebar>
   )
 }

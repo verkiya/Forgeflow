@@ -16,7 +16,7 @@ export default function Page() {
   return (
     <div className="flex min-h-svh flex-col">
       {/* Top bar */}
-      <div className="flex items-center gap-2 p-2 border-b">
+      <div className="flex items-center gap-2 border-b p-2">
         <SidebarTrigger />
       </div>
 
