@@ -9,9 +9,9 @@ export default function DashboardLayout({
 }) {
   return (
     <TooltipProvider>
-      <SidebarProvider>
+      <SidebarProvider className="h-svh">
         <AppSidebar />
-        <SidebarInset>{children}</SidebarInset>
+        <SidebarInset className="min-h-0 overflow-hidden border shadow-none!">{children}</SidebarInset>
       </SidebarProvider>
     </TooltipProvider>
   )

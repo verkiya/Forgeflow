@@ -1,7 +1,7 @@
 "use client"
 
 import { OrganizationSwitcher, UserButton } from "@clerk/nextjs"
-import { Plus } from "lucide-react"
+import { Plus, Workflow } from "lucide-react"
 
 import {
   Sidebar,
@@ -17,6 +17,7 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar"
+import { cn } from "@/lib/utils"
 
 const workflows = [
   { id: "1", name: "dominant-wasp", active: true },
@@ -32,7 +33,7 @@ const workflows = [
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar collapsible="icon" variant="inset" {...props}>
       {/* ── Header: Org Switcher ── */}
       <SidebarHeader>
         <SidebarMenu>
@@ -45,7 +46,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   elements: {
                     rootBox:
                       "!w-full !h-12 border-1 rounded-xl group-data-[collapsible=icon]:border-transparent",
-                    avatarBox: "!size-4 !rounded-sm",
+                    avatarBox: "!size-6 !rounded-sm ml-2 group-data-[collapsible=icon]:ml-0",
                     organizationSwitcherTrigger:
                       "!w-full !justify-start group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2",
                     organizationPreview:
@@ -71,13 +72,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <span className="sr-only">New workflow</span>
           </SidebarGroupAction>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="space-y-2">
               {workflows.map((workflow) => (
                 <SidebarMenuItem key={workflow.id}>
                   <SidebarMenuButton
                     isActive={workflow.active}
                     tooltip={workflow.name}
+                    className={cn(
+                      "transition-all hover:scale-[1.01] hover:bg-primary/20",
+                      workflow.active && "bg-primary/60! font-semibold!"
+                    )}
                   >
+                    <Workflow />
                     <span>{workflow.name}</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -103,7 +109,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     "!w-full !flex-row-reverse !justify-end !gap-2 group-data-[collapsible=icon]:!justify-center !text-sidebar-foreground",
                   userButtonOuterIdentifier:
                     "!pl-0 group-data-[collapsible=icon]:!hidden",
-                  avatarBox: "!size-4",
+                  avatarBox: "!size-4 group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:rounded-xl!",
                 },
               }}
             />
@@ -111,7 +117,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarFooter>
 
-      <SidebarRail />
+      <SidebarRail className="!cursor-col-resize"/>
     </Sidebar>
   )
 }
