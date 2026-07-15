@@ -36,17 +36,12 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={cn(
-        "antialiased",
-        "font-sans",
-        inter.variable,
-        mono.variable
-      )}
+      className={cn("antialiased", "font-sans", inter.variable, mono.variable)}
     >
       <body>
         <ClerkProvider
           appearance={{ theme: shadcn }}
-          taskUrls={{ 'choose-organization': '/choose-org' }}
+          taskUrls={{ "choose-organization": "/choose-org" }}
         >
           <ThemeProvider>
             {children}

@@ -1,4 +1,4 @@
-import { TaskChooseOrganization } from '@clerk/nextjs'
+import { TaskChooseOrganization } from "@clerk/nextjs"
 
 export default function ChooseOrganizationPage() {
   return (
