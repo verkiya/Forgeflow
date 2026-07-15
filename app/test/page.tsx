@@ -161,6 +161,15 @@ export default function DesignSystemPage() {
                           <ColorSwatch name="Chart 5" variable="bg-chart-5" cssVar="var(--chart-5)" fgClass="text-white" />
                         </div>
                       </div>
+                      <div>
+                        <h4 className="text-sm font-medium text-muted-foreground mb-3 uppercase tracking-wider">Sidebar</h4>
+                        <div className="grid grid-cols-4 gap-4">
+                          <ColorSwatch name="Sidebar" variable="bg-sidebar" cssVar="var(--sidebar)" fgClass="text-sidebar-foreground" />
+                          <ColorSwatch name="Sidebar Primary" variable="bg-sidebar-primary" cssVar="var(--sidebar-primary)" fgClass="text-sidebar-primary-foreground" />
+                          <ColorSwatch name="Sidebar Accent" variable="bg-sidebar-accent" cssVar="var(--sidebar-accent)" fgClass="text-sidebar-accent-foreground" />
+                          <ColorSwatch name="Sidebar Border" variable="bg-sidebar-border" cssVar="var(--sidebar-border)" fgClass="text-sidebar-foreground" />
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -201,6 +210,15 @@ export default function DesignSystemPage() {
                           <ColorSwatch name="Chart 3" variable="bg-chart-3" cssVar="var(--chart-3)" fgClass="text-white" />
                           <ColorSwatch name="Chart 4" variable="bg-chart-4" cssVar="var(--chart-4)" fgClass="text-white" />
                           <ColorSwatch name="Chart 5" variable="bg-chart-5" cssVar="var(--chart-5)" fgClass="text-white" />
+                        </div>
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-medium text-muted-foreground mb-3 uppercase tracking-wider">Sidebar</h4>
+                        <div className="grid grid-cols-4 gap-4">
+                          <ColorSwatch name="Sidebar" variable="bg-sidebar" cssVar="var(--sidebar)" fgClass="text-sidebar-foreground" />
+                          <ColorSwatch name="Sidebar Primary" variable="bg-sidebar-primary" cssVar="var(--sidebar-primary)" fgClass="text-sidebar-primary-foreground" />
+                          <ColorSwatch name="Sidebar Accent" variable="bg-sidebar-accent" cssVar="var(--sidebar-accent)" fgClass="text-sidebar-accent-foreground" />
+                          <ColorSwatch name="Sidebar Border" variable="bg-sidebar-border" cssVar="var(--sidebar-border)" fgClass="text-sidebar-foreground" />
                         </div>
                       </div>
                     </div>

@@ -1,35 +1,16 @@
-"use client"
-
 import { OrganizationSwitcher, UserButton } from "@clerk/nextjs"
-import { Plus, Workflow } from "lucide-react"
 
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarGroup,
-  SidebarGroupAction,
-  SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import { cn } from "@/lib/utils"
-
-const workflows = [
-  { id: "1", name: "dominant-wasp", active: true },
-  { id: "2", name: "honest-reindeer", active: false },
-  { id: "3", name: "expected-llama", active: false },
-  { id: "4", name: "essential-ocelot", active: false },
-  { id: "5", name: "creepy-echidna", active: false },
-  { id: "6", name: "eastern-silkworm", active: false },
-  { id: "7", name: "cultural-lion", active: false },
-  { id: "8", name: "proud-weasel", active: false },
-  { id: "9", name: "regional-bonobo", active: false },
-]
+import { WorkflowNav } from "@/features/workflows/components/workflow-nav"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
@@ -65,32 +46,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
       {/* ── Content: Workflow List ── */}
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Workflows</SidebarGroupLabel>
-          <SidebarGroupAction title="New workflow">
-            <Plus />
-            <span className="sr-only">New workflow</span>
-          </SidebarGroupAction>
-          <SidebarGroupContent>
-            <SidebarMenu className="space-y-2">
-              {workflows.map((workflow) => (
-                <SidebarMenuItem key={workflow.id}>
-                  <SidebarMenuButton
-                    isActive={workflow.active}
-                    tooltip={workflow.name}
-                    className={cn(
-                      "transition-all hover:scale-[1.01] hover:bg-primary/20",
-                      workflow.active && "bg-primary/60! font-semibold!"
-                    )}
-                  >
-                    <Workflow />
-                    <span>{workflow.name}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <WorkflowNav />
       </SidebarContent>
 
       {/* ── Footer: User Button ── */}
