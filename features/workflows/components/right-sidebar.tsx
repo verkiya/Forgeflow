@@ -13,7 +13,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
-
+import { validateGraph } from "../lib/validate-graph"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
@@ -35,7 +35,10 @@ import {
   type StepNodeKind,
   type StepNodeType,
 } from "@/features/workflows/nodes/node-registry"
-import { deleteWorkflowAction } from "@/features/workflows/actions"
+import {
+  deleteWorkflowAction,
+  runWorkflowAction,
+} from "@/features/workflows/actions"
 
 // This file builds up to the RightSidebar component exported at the bottom: a
 // header with workflow actions (delete, run), then two tabs — a Toolbar for
@@ -74,8 +77,8 @@ function Section({
   children: React.ReactNode
 }) {
   return (
-    <div className="flex min-h-0 flex-1 flex-col h-full">
-      <div className="flex items-center gap-2 border-y border-white/5 bg-black/20 px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-muted-foreground shadow-sm">
+    <div className="flex h-full min-h-0 flex-1 flex-col">
+      <div className="flex items-center gap-2 border-y border-white/5 bg-black/20 px-4 py-2.5 text-xs font-bold tracking-wider text-muted-foreground uppercase shadow-sm">
         {icon}
         {title}
       </div>
@@ -123,7 +126,7 @@ function FieldInput({
 
 // The Editor tab: one input per field on the selected node, or an empty state.
 function Inspector({ node }: { node: StepNodeType | undefined }) {
-  const {updateNodeData}=useReactFlow<StepNodeType>()
+  const { updateNodeData } = useReactFlow<StepNodeType>()
   if (!node) {
     return (
       <Section title="Editor">
@@ -144,14 +147,17 @@ function Inspector({ node }: { node: StepNodeType | undefined }) {
           def.fields.map((field) => (
             <div key={field.key} className="flex flex-col gap-1.5">
               <Label htmlFor={field.key} className="text-xs">
-                {field.label}{field.required && <span className="text-destructive flex items-center">*</span>}
+                {field.label}
+                {field.required && (
+                  <span className="flex items-center text-destructive">*</span>
+                )}
               </Label>
               <FieldInput
                 field={field}
                 value={values[field.key] ?? ""}
                 onChange={(value) => {
                   updateNodeData(node.id, {
-                    values:{...values,[field.key]:value}
+                    values: { ...values, [field.key]: value },
                   })
                   void value
                 }}
@@ -186,19 +192,27 @@ function Palette() {
     const allNodes = getNodes()
 
     // Enforce single-trigger rule
-    if (def.kind === "trigger" && allNodes.some((n) => (n.data as StepNodeData).kind === "trigger")) {
+    if (
+      def.kind === "trigger" &&
+      allNodes.some((n) => (n.data as StepNodeData).kind === "trigger")
+    ) {
       toast.info("Only one Trigger node is allowed per workflow.")
       return
     }
 
     // Count existing nodes of this type to generate a numbered title
-    const sameTypeCount = allNodes.filter((n) => (n.data as StepNodeData).type === type).length
-    const title = sameTypeCount === 0 ? def.label : `${def.label} ${sameTypeCount + 1}`
+    const sameTypeCount = allNodes.filter(
+      (n) => (n.data as StepNodeData).type === type
+    ).length
+    const title =
+      sameTypeCount === 0 ? def.label : `${def.label} ${sameTypeCount + 1}`
 
-    // Place the new node at the center of the current viewport
+    // Place the new node at the center of the current viewport, with a staggered offset
+    // so multiple nodes don't spawn directly on top of one another.
     const { x, y, zoom } = getViewport()
-    const centerX = (-x + window.innerWidth / 2) / zoom
-    const centerY = (-y + window.innerHeight / 2) / zoom
+    const offset = (allNodes.length % 10) * 20
+    const centerX = (-x + window.innerWidth / 2) / zoom + offset
+    const centerY = (-y + window.innerHeight / 2) / zoom + offset
 
     addNodes({
       id: crypto.randomUUID(),
@@ -224,12 +238,12 @@ function Palette() {
           <AccordionItem
             key={section.kind}
             value={section.kind}
-            className="border-white/5 border rounded-xl mb-3 overflow-hidden bg-black/20 shadow-sm"
+            className="mb-3 overflow-hidden rounded-xl border border-white/5 bg-black/20 shadow-sm"
           >
-            <AccordionTrigger className="py-3 px-4 text-xs font-semibold text-foreground hover:no-underline hover:bg-white/5 transition-colors">
+            <AccordionTrigger className="px-4 py-3 text-xs font-semibold text-foreground transition-colors hover:bg-white/5 hover:no-underline">
               {section.label}
             </AccordionTrigger>
-            <AccordionContent className="flex flex-col gap-1 p-2 bg-black/40 border-t border-white/5">
+            <AccordionContent className="flex flex-col gap-1 border-t border-white/5 bg-black/40 p-2">
               {definitions
                 .filter((def) => def.kind === section.kind)
                 .map((def) => (
@@ -237,9 +251,12 @@ function Palette() {
                     key={def.type}
                     variant="ghost"
                     onClick={() => add(def.type as NodeType)}
-                    className="justify-start gap-3 px-3 py-1.5 h-auto text-xs font-medium hover:bg-white/10 hover:text-white transition-all rounded-lg group"
+                    className="group h-auto justify-start gap-3 rounded-lg px-3 py-1.5 text-xs font-medium transition-all hover:bg-white/10 hover:text-white"
                   >
-                    <NodeIcon type={def.type as NodeType} className="transition-transform group-hover:scale-110 shadow-sm" />
+                    <NodeIcon
+                      type={def.type as NodeType}
+                      className="shadow-sm transition-transform group-hover:scale-110"
+                    />
                     {def.label}
                   </Button>
                 ))}
@@ -265,7 +282,7 @@ function ActionsMenu({ workflowId }: { workflowId: string }) {
       <Button
         size="icon"
         variant="secondary"
-        className="hover:bg-white/10 text-muted-foreground hover:text-white size-8 transition-colors"
+        className="size-8 text-muted-foreground transition-colors hover:bg-white/10 hover:text-white"
         onClick={() => {
           // TODO: rename the workflow
         }}
@@ -277,7 +294,7 @@ function ActionsMenu({ workflowId }: { workflowId: string }) {
           <Button
             size="icon"
             variant="destructive"
-            className="hover:bg-destructive/20 text-muted-foreground hover:text-destructive size-8 transition-colors"
+            className="size-8 text-muted-foreground transition-colors hover:bg-destructive/20 hover:text-destructive"
             disabled={isPending}
           >
             <Trash2 className="size-3.5" />
@@ -285,12 +302,13 @@ function ActionsMenu({ workflowId }: { workflowId: string }) {
         </PopoverTrigger>
         <PopoverContent align="end" className="w-64 space-y-3">
           <div className="space-y-1">
-            <h4 className="font-medium text-sm">Delete workflow?</h4>
+            <h4 className="text-sm font-medium">Delete workflow?</h4>
             <p className="text-xs text-muted-foreground">
-              This action cannot be undone. This will permanently delete this workflow.
+              This action cannot be undone. This will permanently delete this
+              workflow.
             </p>
           </div>
-          <div className="flex gap-2 justify-end">
+          <div className="flex justify-end gap-2">
             <Button
               variant="outline"
               size="sm"
@@ -329,16 +347,28 @@ function ActionsMenu({ workflowId }: { workflowId: string }) {
 }
 
 // Kicks off a run of the current workflow.
-function RunButton() {
+function RunButton({ workflowId }: { workflowId: string }) {
+  const { getNodes, getEdges } = useReactFlow<StepNodeType>()
+  const [isPending, startTransition] = useTransition()
   return (
     <Button
-      size="sm"
-      className="bg-primary/20 text-primary hover:bg-primary/30 hover:text-primary transition-all border border-primary/20 shadow-[0_0_15px_rgba(var(--primary),0.15)] hover:shadow-[0_0_20px_rgba(var(--primary),0.3)] rounded-full px-5 font-semibold tracking-wide"
+      size="lg"
+      className="rounded-full border border-primary/20 bg-primary/20 px-5 font-semibold tracking-wide text-primary shadow-[0_0_15px_rgba(var(--primary),0.15)] transition-all hover:bg-primary/30 hover:text-primary hover:shadow-[0_0_20px_rgba(var(--primary),0.3)]"
+      disabled={isPending}
       onClick={() => {
-        // TODO: validate the graph and run the workflow (toggle to Stop while running).
+        // Validate the graph and run the workflow (toggle to Stop while running)
+        const graph = { nodes: getNodes(), edges: getEdges() }
+        const problems = validateGraph(graph)
+        if (problems.length > 0) {
+          toast.error(problems[0])
+          return
+        }
+        startTransition(async () => {
+          await runWorkflowAction({ id: workflowId, graph })
+        })
       }}
     >
-      <Play fill="currentColor" className="size-3.5 mr-1" />
+      <Play fill="currentColor" className="mr-1 size-4" />
       Run
     </Button>
   )
@@ -352,7 +382,8 @@ export function RightSidebar({ workflowId }: { workflowId: string }) {
   const [tab, setTab] = useState("toolbar")
 
   // TODO: read the currently selected node from React Flow.
-  const selected= useStore((s)=>s.nodes.find((n)=>n.selected))as StepNodeType | undefined
+  const selected = useStore((s) => s.nodes.find((n) => n.selected)) as
+    StepNodeType | undefined
 
   // Auto-switch to the Editor tab when a node is selected.
   useEffect(() => {
@@ -365,46 +396,54 @@ export function RightSidebar({ workflowId }: { workflowId: string }) {
 
   return (
     <ResizablePanel
-      className="bg-background/80 backdrop-blur-xl border-l border-white/10 shadow-2xl flex flex-col"
+      className="flex flex-col border-l border-white/10 bg-background/80 shadow-2xl backdrop-blur-xl"
       defaultSize="25rem"
       minSize="20rem"
       maxSize="36rem"
       groupResizeBehavior="preserve-pixel-size"
     >
-      <Tabs value={tab} onValueChange={setTab} className="flex flex-col size-full min-h-0">
-
-        <div className="flex items-center justify-between border-b border-white/5 bg-black/40 p-3 shadow-sm z-10 relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent pointer-events-none" />
+      <Tabs
+        value={tab}
+        onValueChange={setTab}
+        className="flex size-full min-h-0 flex-col"
+      >
+        <div className="relative z-10 flex items-center justify-between border-b border-white/5 bg-black/40 p-3 shadow-sm">
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent" />
           <ActionsMenu workflowId={workflowId} />
-          <RunButton />
+          <RunButton workflowId={workflowId} />
         </div>
 
-        <div className="px-4 py-3 bg-gradient-to-b from-black/20 to-transparent">
-          <TabsList className="w-full bg-black/40 border border-white/5 rounded-xl p-1 h-11 grid grid-cols-2 gap-1 shadow-inner items-center">
+        <div className="bg-gradient-to-b from-black/20 to-transparent px-4 py-3">
+          <TabsList className="grid h-11 w-full grid-cols-2 items-center gap-1 rounded-xl border border-white/5 bg-black/40 p-1 shadow-inner">
             <TabsTrigger
               value="toolbar"
-              className="rounded-lg h-full text-xs font-bold tracking-wide data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all"
+              className="h-full rounded-lg text-xs font-bold tracking-wide transition-all data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:shadow-sm"
             >
               Toolbar
             </TabsTrigger>
             <TabsTrigger
               value="editor"
-              className="rounded-lg h-full text-xs font-bold tracking-wide data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all"
+              className="h-full rounded-lg text-xs font-bold tracking-wide transition-all data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:shadow-sm"
             >
               Editor
             </TabsTrigger>
           </TabsList>
         </div>
 
-        <div className="flex-1 min-h-0 overflow-hidden relative">
-          <TabsContent value="toolbar" className="h-full m-0 data-[state=active]:flex flex-col outline-none">
+        <div className="relative min-h-0 flex-1 overflow-hidden">
+          <TabsContent
+            value="toolbar"
+            className="m-0 h-full flex-col outline-none data-[state=active]:flex"
+          >
             <Palette />
           </TabsContent>
-          <TabsContent value="editor" className="h-full m-0 data-[state=active]:flex flex-col outline-none">
+          <TabsContent
+            value="editor"
+            className="m-0 h-full flex-col outline-none data-[state=active]:flex"
+          >
             <Inspector node={selected} />
           </TabsContent>
         </div>
-
       </Tabs>
     </ResizablePanel>
   )

@@ -9,7 +9,7 @@ export type NodeField = {
   label: string
   placeholder?: string
   multiline?: boolean
-  required?:boolean
+  required?: boolean
 }
 
 // A node type's manifest entry. Add a node by adding an entry to nodeRegistry.
@@ -43,7 +43,14 @@ export const nodeRegistry = {
     accent: "bg-emerald-500 text-white",
     colorBorder: "border-emerald-500",
     colorHandleHover: "hover:bg-emerald-500!",
-    fields: [{ key: "url", label: "URL", placeholder: "https://youtube.com", required:true }],
+    fields: [
+      {
+        key: "url",
+        label: "URL",
+        placeholder: "https://youtube.com",
+        required: true,
+      },
+    ],
   },
 } satisfies Record<string, NodeDefinition>
 

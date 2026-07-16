@@ -51,8 +51,12 @@ function StepNodeComponent({ data, selected }: NodeProps<StepNodeType>) {
                 key={field.key}
                 className="flex items-center justify-between gap-4 text-xs"
               >
-                <span className="shrink-0 text-muted-foreground">{field.label}</span>
-                <span className="truncate font-medium">{values[field.key]}</span>
+                <span className="shrink-0 text-muted-foreground">
+                  {field.label}
+                </span>
+                <span className="truncate font-medium">
+                  {values[field.key]}
+                </span>
               </div>
             ))}
           </div>

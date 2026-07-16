@@ -6,9 +6,8 @@ import { createWorkflow, deleteWorkflow, saveWorkflowGraph } from "./data"
 import { WorkflowGraph } from "@/lib/db/schema"
 import { liveblocks } from "./lib/liveblocks"
 import { tasks, runs } from "@trigger.dev/sdk"
-import type { helloWorldTask } from "@/trigger/example"
 import { redirect } from "next/navigation"
-
+import { type runWorkflowTask } from "@/features/workflows/tasks/run-workflow"
 export async function createWorkflowAction(name: string) {
   const { orgId } = await auth()
 
@@ -22,15 +21,23 @@ export async function createWorkflowAction(name: string) {
   return { id: workflow.id }
 }
 
-export async function runWorkflowAction({ id, graph }: { id: string; graph: WorkflowGraph }) {
-  const { orgId } = await auth();
+export async function runWorkflowAction({
+  id,
+  graph,
+}: {
+  id: string
+  graph: WorkflowGraph
+}) {
+  const { orgId } = await auth()
   if (!orgId) throw new Error("No active organization")
-  await saveWorkflowGraph({orgId,id,graph})
-  const handle = await tasks.trigger<typeof helloWorldTask>("hello-world", {
-    message: "Triggered from the UI",
-  })
+  await saveWorkflowGraph({ orgId, id, graph })
+  const handle = await tasks.trigger<typeof runWorkflowTask>(
+    "run-workflow",
+    { workflowId: id, orgId },
+    { tags: [`workflow:${id}`] }
+  )
 
-  return { id: handle.id }
+  return handle
 }
 
 export async function deleteWorkflowAction(id: string) {
@@ -52,7 +59,7 @@ export async function deleteWorkflowAction(id: string) {
   revalidatePath("/", "layout")
 }
 export async function cancelWorkflowRunAction(runId: string) {
-  const { orgId } = await auth();
+  const { orgId } = await auth()
   if (!orgId) throw new Error("No active organization")
   await runs.cancel(runId)
 }

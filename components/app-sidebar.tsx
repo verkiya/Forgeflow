@@ -25,18 +25,23 @@ export async function AppSidebar({
     <Sidebar collapsible="icon" variant="inset" {...props}>
       {/* ── Header: Org Switcher ── */}
       <SidebarHeader>
-        <SidebarMenu >
-          <SidebarMenuItem className="mb-2 mt-2 px-2">
+        <SidebarMenu>
+          <SidebarMenuItem className="mt-2 mb-2 px-2">
             <Link href="/" className="flex items-center">
-              <Image src="/forgeflow.svg" alt="Forgeflow Logo" width={30} height={30} className="shrink-0 " />
-              <span className="text-2xl font-bold tracking-tighter bg-gradient-to-br from-primary to-[oklch(0.63_0.13_159)] bg-clip-text text-transparent group-data-[collapsible=icon]:hidden -ml-0.5">
+              <Image
+                src="/forgeflow.svg"
+                alt="Forgeflow Logo"
+                width={30}
+                height={30}
+                className="shrink-0"
+              />
+              <span className="-ml-0.5 bg-gradient-to-br from-primary to-[oklch(0.63_0.13_159)] bg-clip-text text-2xl font-bold tracking-tighter text-transparent group-data-[collapsible=icon]:hidden">
                 orgeflow
               </span>
             </Link>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild size="lg" >
-
+            <SidebarMenuButton asChild size="lg">
               <OrganizationSwitcher
                 hidePersonal
                 afterCreateOrganizationUrl="/"

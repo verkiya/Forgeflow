@@ -24,7 +24,9 @@ export function WorkflowShell({ workflowId }: { workflowId: string }) {
             {/* Bottom panel: Logs */}
             <ResizablePanel maxSize="18rem" defaultSize="16rem" minSize="16rem">
               <div className="flex size-full items-center justify-center bg-muted/20 p-6">
-                <span className="font-semibold text-muted-foreground">Logs</span>
+                <span className="font-semibold text-muted-foreground">
+                  Logs
+                </span>
               </div>
             </ResizablePanel>
           </ResizablePanelGroup>
