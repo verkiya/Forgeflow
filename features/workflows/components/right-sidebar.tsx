@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button"
 
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { ResizablePanel } from "@/components/ui/resizable"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -90,7 +91,19 @@ function FieldInput({
   value: string
   onChange: (value: string) => void
 }) {
-  // TODO: support a multiline field variant (textarea).
+  if (field.multiline) {
+    return (
+      <Textarea
+        id={field.key}
+        value={value}
+        placeholder={field.placeholder}
+        onChange={(e) => onChange(e.target.value)}
+        rows={3}
+        className="resize-none"
+      />
+    )
+  }
+
   return (
     <Input
       id={field.key}
@@ -124,7 +137,7 @@ function Inspector({ node }: { node: StepNodeType | undefined }) {
           def.fields.map((field) => (
             <div key={field.key} className="flex flex-col gap-1.5">
               <Label htmlFor={field.key} className="text-xs">
-                {field.label}
+                {field.label}{field.required && <span className="text-destructive flex items-center">*</span>}
               </Label>
               <FieldInput
                 field={field}
