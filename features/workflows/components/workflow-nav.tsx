@@ -1,7 +1,7 @@
 "use client"
 
 import { Plus, Workflow as WorkflowIcon, Loader2 } from "lucide-react"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import Link from "next/link"
 import { useTransition } from "react"
 
@@ -59,12 +59,14 @@ function WorkflowList({ workflows }: WorkflowNavProps) {
 export function WorkflowNav({ workflows }: { workflows: Workflow[] }) {
   const { state } = useSidebar()
   const [isPending, startTransition] = useTransition()
+  const router = useRouter()
 
   const handleCreateWorkflow = () => {
     const slug = generateSlug()
     startTransition(async () => {
       try {
-        await createWorkflowAction(slug)
+        const res = await createWorkflowAction(slug)
+        router.push(`/workflows/${res.id}`)
       } catch (error) {
         console.error("Failed to create workflow:", error)
       }

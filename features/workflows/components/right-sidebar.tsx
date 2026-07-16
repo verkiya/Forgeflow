@@ -1,9 +1,10 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useTransition } from "react"
 import { Play, Trash2, Pen } from "lucide-react"
 import { useReactFlow, useStore } from "@xyflow/react"
 import { toast } from "sonner"
+import { useRouter } from "next/navigation"
 
 import {
   Accordion,
@@ -18,6 +19,11 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { ResizablePanel } from "@/components/ui/resizable"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import { cn } from "@/lib/utils"
 
 import {
@@ -29,6 +35,7 @@ import {
   type StepNodeKind,
   type StepNodeType,
 } from "@/features/workflows/nodes/node-registry"
+import { deleteWorkflowAction } from "@/features/workflows/actions"
 
 // This file builds up to the RightSidebar component exported at the bottom: a
 // header with workflow actions (delete, run), then two tabs — a Toolbar for
@@ -180,7 +187,7 @@ function Palette() {
 
     // Enforce single-trigger rule
     if (def.kind === "trigger" && allNodes.some((n) => (n.data as StepNodeData).kind === "trigger")) {
-      toast.warning("Only one trigger node is allowed per workflow.")
+      toast.info("Only one Trigger node is allowed per workflow.")
       return
     }
 
@@ -249,7 +256,10 @@ function Palette() {
 // ---------------------------------------------------------------------------
 
 // Workflow-level actions.
-function ActionsMenu() {
+function ActionsMenu({ workflowId }: { workflowId: string }) {
+  const [isPending, startTransition] = useTransition()
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false)
+  const router = useRouter()
   return (
     <div className="flex items-center gap-1">
       <Button
@@ -262,16 +272,58 @@ function ActionsMenu() {
       >
         <Pen className="size-3.5" />
       </Button>
-      <Button
-        size="icon"
-        variant="destructive"
-        className="hover:bg-destructive/20 text-muted-foreground hover:text-destructive size-8 transition-colors"
-        onClick={() => {
-          // TODO: delete the workflow, then navigate away.
-        }}
-      >
-        <Trash2 className="size-3.5" />
-      </Button>
+      <Popover open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            size="icon"
+            variant="destructive"
+            className="hover:bg-destructive/20 text-muted-foreground hover:text-destructive size-8 transition-colors"
+            disabled={isPending}
+          >
+            <Trash2 className="size-3.5" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent align="end" className="w-64 space-y-3">
+          <div className="space-y-1">
+            <h4 className="font-medium text-sm">Delete workflow?</h4>
+            <p className="text-xs text-muted-foreground">
+              This action cannot be undone. This will permanently delete this workflow.
+            </p>
+          </div>
+          <div className="flex gap-2 justify-end">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8"
+              disabled={isPending}
+              onClick={() => setIsDeleteOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              className="h-8"
+              disabled={isPending}
+              onClick={() => {
+                startTransition(async () => {
+                  try {
+                    await deleteWorkflowAction(workflowId)
+                    toast.warning("Workflow deleted")
+                    setIsDeleteOpen(false)
+                    router.push("/")
+                  } catch (err) {
+                    toast.error("Failed to delete workflow")
+                    setIsDeleteOpen(false)
+                  }
+                })
+              }}
+            >
+              Yes, Delete
+            </Button>
+          </div>
+        </PopoverContent>
+      </Popover>
     </div>
   )
 }
@@ -296,7 +348,7 @@ function RunButton() {
 // The sidebar itself — header on top, then the Toolbar / Editor tabs.
 // ---------------------------------------------------------------------------
 
-export function RightSidebar() {
+export function RightSidebar({ workflowId }: { workflowId: string }) {
   const [tab, setTab] = useState("toolbar")
 
   // TODO: read the currently selected node from React Flow.
@@ -323,7 +375,7 @@ export function RightSidebar() {
 
         <div className="flex items-center justify-between border-b border-white/5 bg-black/40 p-3 shadow-sm z-10 relative">
           <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent pointer-events-none" />
-          <ActionsMenu />
+          <ActionsMenu workflowId={workflowId} />
           <RunButton />
         </div>
 

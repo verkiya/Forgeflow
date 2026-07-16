@@ -1,4 +1,6 @@
 "use client"
+import { useTransition } from "react"
+import { useRouter } from "next/navigation"
 
 import { Plus, Workflow } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -11,8 +13,13 @@ import {
   EmptyDescription,
   EmptyContent,
 } from "@/components/ui/empty"
+import { createWorkflowAction } from "@/features/workflows/actions"
+import { generateSlug } from "@/features/workflows/lib/generate-slug"
+import { toast } from "sonner"
 
 export default function Page() {
+  const [isPending, startTransition] = useTransition()
+  const router = useRouter()
   return (
     <div className="flex min-h-svh flex-col">
       {/* Top bar */}
@@ -33,7 +40,22 @@ export default function Page() {
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
-          <Button size="lg">
+          <Button
+            size="lg"
+            disabled={isPending}
+            onClick={() => {
+              const slug = generateSlug()
+              startTransition(async () => {
+                try {
+                  const res = await createWorkflowAction(slug)
+                  toast.success("Workflow created")
+                  router.push(`/workflows/${res.id}`)
+                } catch (error) {
+                  toast.error("Failed to create workflow")
+                }
+              })
+            }}
+          >
             <Plus />
             New workflow
           </Button>

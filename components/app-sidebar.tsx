@@ -1,4 +1,6 @@
 import { OrganizationSwitcher, UserButton } from "@clerk/nextjs"
+import Image from "next/image"
+import Link from "next/link"
 
 import {
   Sidebar,
@@ -23,9 +25,18 @@ export async function AppSidebar({
     <Sidebar collapsible="icon" variant="inset" {...props}>
       {/* ── Header: Org Switcher ── */}
       <SidebarHeader>
-        <SidebarMenu>
+        <SidebarMenu >
+          <SidebarMenuItem className="mb-2 mt-2 px-2">
+            <Link href="/" className="flex items-center">
+              <Image src="/forgeflow.svg" alt="Forgeflow Logo" width={30} height={30} className="shrink-0 " />
+              <span className="text-2xl font-bold tracking-tighter bg-gradient-to-br from-primary to-[oklch(0.63_0.13_159)] bg-clip-text text-transparent group-data-[collapsible=icon]:hidden -ml-0.5">
+                orgeflow
+              </span>
+            </Link>
+          </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild size="lg">
+            <SidebarMenuButton asChild size="lg" >
+
               <OrganizationSwitcher
                 hidePersonal
                 afterCreateOrganizationUrl="/"
@@ -35,7 +46,7 @@ export async function AppSidebar({
                 appearance={{
                   elements: {
                     rootBox:
-                      "!w-full !h-12 border-1 rounded-xl group-data-[collapsible=icon]:border-transparent",
+                      "!w-full !h-12 mt-4 border-1 rounded-xl group-data-[collapsible=icon]:mt-2! group-data-[collapsible=icon]:border-transparent",
                     avatarBox:
                       "!size-6 !rounded-sm ml-2 group-data-[collapsible=icon]:ml-0",
                     organizationSwitcherTrigger:

@@ -32,7 +32,7 @@ export function WorkflowShell({ workflowId }: { workflowId: string }) {
         <ResizableHandle withHandle />
         {/* Right panel: Inspector */}
         <ResizablePanel defaultSize="16rem" minSize="16rem" maxSize="20rem">
-          <RightSidebar />
+          <RightSidebar workflowId={workflowId} />
         </ResizablePanel>
       </ResizablePanelGroup>
     </ReactFlowProvider>
