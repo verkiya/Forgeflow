@@ -78,7 +78,7 @@ export function Canvas() {
             "--xy-connectionline-stroke-width": 2,
           } as React.CSSProperties
         }
-        maxZoom={1.5}
+        maxZoom={1.3}
         colorMode={
           isMounted ? (resolvedTheme as "light" | "dark" | "system") : "dark"
         }

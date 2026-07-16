@@ -1,7 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Play, Trash2, Pen } from "lucide-react"
+import { useReactFlow, useStore } from "@xyflow/react"
+import { toast } from "sonner"
 
 import {
   Accordion,
@@ -22,6 +24,7 @@ import {
   type NodeDefinition,
   type NodeField,
   type NodeType,
+  type StepNodeData,
   type StepNodeKind,
   type StepNodeType,
 } from "@/features/workflows/nodes/node-registry"
@@ -100,6 +103,7 @@ function FieldInput({
 
 // The Editor tab: one input per field on the selected node, or an empty state.
 function Inspector({ node }: { node: StepNodeType | undefined }) {
+  const {updateNodeData}=useReactFlow<StepNodeType>()
   if (!node) {
     return (
       <Section title="Editor">
@@ -126,7 +130,9 @@ function Inspector({ node }: { node: StepNodeType | undefined }) {
                 field={field}
                 value={values[field.key] ?? ""}
                 onChange={(value) => {
-                  // TODO: save the edit back onto the selected node.
+                  updateNodeData(node.id, {
+                    values:{...values,[field.key]:value}
+                  })
                   void value
                 }}
               />
@@ -153,9 +159,38 @@ const definitions = Object.values(nodeRegistry)
 
 // The Toolbar tab: a button per node type that adds it to the canvas.
 function Palette() {
+  const { getNodes, addNodes, getViewport } = useReactFlow()
+
   const add = (type: NodeType) => {
-    // TODO: add the clicked node to the canvas (one trigger max).
-    void type
+    const def = nodeRegistry[type]
+    const allNodes = getNodes()
+
+    // Enforce single-trigger rule
+    if (def.kind === "trigger" && allNodes.some((n) => (n.data as StepNodeData).kind === "trigger")) {
+      toast.warning("Only one trigger node is allowed per workflow.")
+      return
+    }
+
+    // Count existing nodes of this type to generate a numbered title
+    const sameTypeCount = allNodes.filter((n) => (n.data as StepNodeData).type === type).length
+    const title = sameTypeCount === 0 ? def.label : `${def.label} ${sameTypeCount + 1}`
+
+    // Place the new node at the center of the current viewport
+    const { x, y, zoom } = getViewport()
+    const centerX = (-x + window.innerWidth / 2) / zoom
+    const centerY = (-y + window.innerHeight / 2) / zoom
+
+    addNodes({
+      id: crypto.randomUUID(),
+      type: "step",
+      position: { x: centerX, y: centerY },
+      data: {
+        type,
+        kind: def.kind,
+        title,
+        values: {},
+      } satisfies StepNodeData,
+    })
   }
 
   return (
@@ -252,9 +287,16 @@ export function RightSidebar() {
   const [tab, setTab] = useState("toolbar")
 
   // TODO: read the currently selected node from React Flow.
-  const selected: StepNodeType | undefined = undefined
+  const selected= useStore((s)=>s.nodes.find((n)=>n.selected))as StepNodeType | undefined
 
-  // TODO: auto-switch to the Editor tab when the selection changes.
+  // Auto-switch to the Editor tab when a node is selected.
+  useEffect(() => {
+    if (selected) {
+      setTab("editor")
+    } else {
+      setTab("toolbar")
+    }
+  }, [selected?.id])
 
   return (
     <ResizablePanel
