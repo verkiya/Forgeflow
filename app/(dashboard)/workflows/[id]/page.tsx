@@ -1,7 +1,12 @@
 import { SidebarTrigger } from "@/components/ui/sidebar"
+import { Room } from "@/features/workflows/components/room"
 import { WorkflowShell } from "@/features/workflows/components/workflow-shell"
 
-export default async function WorkflowPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function WorkflowPage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
   const { id } = await params
 
   return (
@@ -11,8 +16,10 @@ export default async function WorkflowPage({ params }: { params: Promise<{ id: s
         <SidebarTrigger />
       </div>
 
-      <div className="flex-1 overflow-hidden min-h-0">
-        <WorkflowShell workflowId={id} />
+      <div className="min-h-0 flex-1 overflow-hidden">
+        <Room roomId={id}>
+          <WorkflowShell workflowId={id} />
+        </Room>
       </div>
     </div>
   )

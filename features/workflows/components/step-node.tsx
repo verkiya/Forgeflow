@@ -1,10 +1,7 @@
 import { memo } from "react"
 import { Handle, Position, type NodeProps } from "@xyflow/react"
 
-import {
-  nodeRegistry,
-  type StepNodeType,
-} from "../nodes/node-registry"
+import { nodeRegistry, type StepNodeType } from "../nodes/node-registry"
 import { cn } from "@/lib/utils"
 
 function StepNodeComponent({ data, selected }: NodeProps<StepNodeType>) {
@@ -18,7 +15,7 @@ function StepNodeComponent({ data, selected }: NodeProps<StepNodeType>) {
   return (
     <div
       className={cn(
-        "min-w-50 max-w-80 rounded-(--radius) border-2 bg-card text-card-foreground shadow-sm transition-all hover:shadow-md",
+        "max-w-80 min-w-50 rounded-(--radius) border-2 bg-card text-card-foreground shadow-sm transition-all hover:shadow-md",
         selected ? cn(def.colorBorder, "shadow-md") : "border-border"
       )}
     >

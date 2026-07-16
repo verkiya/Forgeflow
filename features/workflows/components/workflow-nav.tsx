@@ -26,8 +26,8 @@ import {
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { type Workflow } from "@/lib/db/schema"
-interface WorkflowNavProps{
-  workflows:Workflow[]
+interface WorkflowNavProps {
+  workflows: Workflow[]
 }
 function WorkflowList({ workflows }: WorkflowNavProps) {
   const pathname = usePathname()
@@ -93,7 +93,7 @@ export function WorkflowNav({ workflows }: { workflows: Workflow[] }) {
                   className="w-56 rounded-xl p-2"
                 >
                   <div className="mb-2 px-1">
-                    <Button 
+                    <Button
                       onClick={handleCreateWorkflow}
                       disabled={isPending}
                       className="flex w-full items-center justify-center gap-2 rounded-md border border-dashed border-border/60 bg-transparent p-2 text-xs font-medium text-muted-foreground transition-all hover:border-primary/50 hover:bg-primary/5 hover:text-primary"
@@ -122,9 +122,9 @@ export function WorkflowNav({ workflows }: { workflows: Workflow[] }) {
   return (
     <SidebarGroup>
       <SidebarGroupLabel>Workflows</SidebarGroupLabel>
-      <SidebarGroupAction 
-        onClick={handleCreateWorkflow} 
-        disabled={isPending} 
+      <SidebarGroupAction
+        onClick={handleCreateWorkflow}
+        disabled={isPending}
         title="New workflow"
       >
         {isPending ? <Loader2 className="animate-spin" /> : <Plus />}

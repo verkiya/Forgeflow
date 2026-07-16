@@ -2,7 +2,7 @@ import { Loader2, Zap } from "lucide-react"
 
 export default function Loading() {
   return (
-    <div className="relative flex h-full flex-1 w-full items-center justify-center overflow-hidden bg-background">
+    <div className="relative flex h-full w-full flex-1 items-center justify-center overflow-hidden bg-background">
       {/* ── Dot Grid Background ── */}
       <div
         className="absolute inset-0 z-0 opacity-40 dark:opacity-20"
