@@ -7,6 +7,7 @@ import {
   Controls,
   type Connection,
   ConnectionLineType,
+  Panel,
   MiniMap,
   BackgroundVariant,
   NodeTypes,
@@ -14,6 +15,7 @@ import {
 } from "@xyflow/react"
 import { useLiveblocksFlow, Cursors } from "@liveblocks/react-flow"
 import { useTheme } from "next-themes"
+import { AvatarStack } from "@liveblocks/react-ui"
 import "@xyflow/react/dist/style.css"
 import "@liveblocks/react-ui/styles.css"
 import "@liveblocks/react-flow/styles.css"
@@ -88,6 +90,9 @@ export function Canvas() {
         <MiniMap zoomable pannable />
         <Controls showInteractive={false} />
         <Cursors />
+        <Panel position="top-right">
+          <AvatarStack />
+        </Panel>
       </ReactFlow>
     </div>
   )
