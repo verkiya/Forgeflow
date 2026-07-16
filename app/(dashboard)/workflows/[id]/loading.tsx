@@ -47,9 +47,11 @@ export default function Loading() {
 
       {/* Diagram Container */}
       <div className="relative z-10 h-[400px] w-[750px] scale-75 sm:scale-90 md:scale-100">
-        
         {/* SVG Edges */}
-        <svg className="absolute inset-0 z-0 h-full w-full pointer-events-none" style={{ overflow: "visible" }}>
+        <svg
+          className="pointer-events-none absolute inset-0 z-0 h-full w-full"
+          style={{ overflow: "visible" }}
+        >
           {/* Static semi-transparent paths */}
           <g strokeWidth="2" fill="none" className="opacity-20">
             <path stroke="#10b981" d="M 192 195 C 226 195, 226 95, 260 95" />
@@ -58,7 +60,12 @@ export default function Loading() {
             <path stroke="#a855f7" d="M 452 295 C 489 295, 489 195, 526 195" />
           </g>
           {/* Animated dashed paths */}
-          <g strokeWidth="2" fill="none" strokeDasharray="6 6" className="animate-dash-flow opacity-80">
+          <g
+            strokeWidth="2"
+            fill="none"
+            strokeDasharray="6 6"
+            className="animate-dash-flow opacity-80"
+          >
             <path stroke="#10b981" d="M 192 195 C 226 195, 226 95, 260 95" />
             <path stroke="#10b981" d="M 192 195 C 226 195, 226 295, 260 295" />
             <path stroke="#f97316" d="M 452 95 C 489 95, 489 195, 526 195" />
@@ -67,7 +74,10 @@ export default function Loading() {
         </svg>
 
         {/* Node 1: Trigger */}
-        <div className="absolute left-0 top-[160px] w-48 overflow-hidden rounded-xl border bg-card shadow-sm" style={{ zIndex: 10 }}>
+        <div
+          className="absolute top-[160px] left-0 w-48 overflow-hidden rounded-xl border bg-card shadow-sm"
+          style={{ zIndex: 10 }}
+        >
           <div className="h-1.5 w-full bg-emerald-500" />
           <div className="flex items-center gap-3 p-3">
             <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10">
@@ -81,7 +91,10 @@ export default function Loading() {
         </div>
 
         {/* Node 2: AI Processing */}
-        <div className="absolute left-[260px] top-[60px] w-48 overflow-hidden rounded-xl border bg-card shadow-sm opacity-90" style={{ zIndex: 10 }}>
+        <div
+          className="absolute top-[60px] left-[260px] w-48 overflow-hidden rounded-xl border bg-card opacity-90 shadow-sm"
+          style={{ zIndex: 10 }}
+        >
           <div className="h-1.5 w-full bg-orange-500" />
           <div className="flex items-center gap-3 p-3">
             <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-orange-500/10 text-orange-500">
@@ -96,7 +109,10 @@ export default function Loading() {
         </div>
 
         {/* Node 3: Database */}
-        <div className="absolute left-[260px] top-[260px] w-48 overflow-hidden rounded-xl border bg-card shadow-sm opacity-90" style={{ zIndex: 10 }}>
+        <div
+          className="absolute top-[260px] left-[260px] w-48 overflow-hidden rounded-xl border bg-card opacity-90 shadow-sm"
+          style={{ zIndex: 10 }}
+        >
           <div className="h-1.5 w-full bg-purple-500" />
           <div className="flex items-center gap-3 p-3">
             <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-purple-500/10 text-purple-500">
@@ -111,7 +127,10 @@ export default function Loading() {
         </div>
 
         {/* Node 4: Loading State (Final) */}
-        <div className="absolute left-[526px] top-[152px] w-56 overflow-hidden rounded-xl border-2 border-blue-500/50 bg-card shadow-[0_0_15px_rgba(59,130,246,0.15)] ring-4 ring-blue-500/10" style={{ zIndex: 10 }}>
+        <div
+          className="absolute top-[152px] left-[526px] w-56 overflow-hidden rounded-xl border-2 border-blue-500/50 bg-card shadow-[0_0_15px_rgba(59,130,246,0.15)] ring-4 ring-blue-500/10"
+          style={{ zIndex: 10 }}
+        >
           <div className="h-1.5 w-full bg-blue-500" />
           <div className="flex items-start gap-3 p-4">
             <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 text-blue-500">
@@ -126,7 +145,6 @@ export default function Loading() {
           </div>
           <div className="absolute top-1/2 left-[-6px] size-3 -translate-y-1/2 rounded-full border-2 border-blue-500 bg-background" />
         </div>
-
       </div>
     </div>
   )

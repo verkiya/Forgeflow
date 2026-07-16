@@ -26,7 +26,7 @@ export default function Loading() {
   return (
     <div className="relative flex h-svh w-full items-center justify-center overflow-hidden bg-background">
       {/* ── Subtle Ambient Glow ── */}
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
         <div className="size-64 animate-pulse rounded-full bg-primary/10 blur-[64px]" />
       </div>
 
@@ -37,7 +37,7 @@ export default function Loading() {
           <div className="absolute inset-0 rounded-2xl border-2 border-border" />
           <div className="absolute inset-0 animate-[spin_3s_linear_infinite] rounded-2xl border-2 border-primary border-t-transparent" />
           <div className="absolute inset-0 animate-[spin_4s_linear_infinite_reverse] rounded-2xl border-2 border-chart-1/50 border-b-transparent opacity-50" />
-          
+
           {/* Inner Logo */}
           <div className="flex size-14 items-center justify-center rounded-xl bg-card shadow-lg ring-1 ring-border">
             <ForgeflowIcon className="size-8 animate-pulse text-primary drop-shadow-[0_0_8px_rgba(var(--primary),0.5)]" />
@@ -51,9 +51,18 @@ export default function Loading() {
           </h2>
           <p className="flex items-center gap-1 text-sm text-muted-foreground">
             <span className="flex gap-0.5">
-              <span className="size-1.5 animate-bounce rounded-full bg-primary/60" style={{ animationDelay: "0ms" }} />
-              <span className="size-1.5 animate-bounce rounded-full bg-primary/60" style={{ animationDelay: "150ms" }} />
-              <span className="size-1.5 animate-bounce rounded-full bg-primary/60" style={{ animationDelay: "300ms" }} />
+              <span
+                className="size-1.5 animate-bounce rounded-full bg-primary/60"
+                style={{ animationDelay: "0ms" }}
+              />
+              <span
+                className="size-1.5 animate-bounce rounded-full bg-primary/60"
+                style={{ animationDelay: "150ms" }}
+              />
+              <span
+                className="size-1.5 animate-bounce rounded-full bg-primary/60"
+                style={{ animationDelay: "300ms" }}
+              />
             </span>
           </p>
         </div>

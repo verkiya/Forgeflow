@@ -7,7 +7,7 @@ import {
   ClientSideSuspense,
 } from "@liveblocks/react/suspense"
 
-import Loading from "@/app/(dashboard)/workflows/[id]/loading";
+import Loading from "@/app/(dashboard)/workflows/[id]/loading"
 
 export function Room({
   children,
@@ -17,10 +17,7 @@ export function Room({
   children: ReactNode
 }) {
   return (
-    <LiveblocksProvider
-      throttle={16}
-      authEndpoint="/api/liveblocks/auth"
-    >
+    <LiveblocksProvider throttle={16} authEndpoint="/api/liveblocks/auth">
       <RoomProvider id={roomId}>
         <ClientSideSuspense fallback={<Loading />}>
           {children}

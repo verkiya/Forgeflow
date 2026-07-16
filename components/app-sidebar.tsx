@@ -28,6 +28,9 @@ export async function AppSidebar({
             <SidebarMenuButton asChild size="lg">
               <OrganizationSwitcher
                 hidePersonal
+                afterCreateOrganizationUrl="/"
+                afterSelectOrganizationUrl="/"
+                afterLeaveOrganizationUrl="/"
                 skipInvitationScreen
                 appearance={{
                   elements: {

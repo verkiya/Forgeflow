@@ -11,13 +11,14 @@ export default async function WorkflowPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const { orgId } = await auth();
+  const { orgId } = await auth()
   if (!orgId) notFound()
   const workflow = await getWorkflow(orgId, id)
-  if(!workflow) notFound()
+  if (!workflow) notFound()
 
   // Ensure the room exists and the organization has write access
   await liveblocks.getOrCreateRoom(id, {
+    organizationId: orgId,
     defaultAccesses: [],
     groupsAccesses: {
       [orgId]: ["room:write"],
