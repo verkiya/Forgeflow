@@ -3,7 +3,7 @@ import { Home, Unplug } from "lucide-react"
 
 export default function NotFound() {
   return (
-    <div className="relative flex h-full flex-1 w-full items-center justify-center overflow-hidden bg-background">
+    <div className="relative flex h-full w-full flex-1 items-center justify-center overflow-hidden bg-background">
       {/* ── Dot Grid Background ── */}
       <div
         className="absolute inset-0 z-0 opacity-40 dark:opacity-20"
@@ -27,7 +27,8 @@ export default function NotFound() {
               </h1>
               <h4 className="text-base font-semibold">Workflow Not Found</h4>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                The workflow you are looking for does not exist or you do not have access to it.
+                The workflow you are looking for does not exist or you do not
+                have access to it.
               </p>
             </div>
           </div>

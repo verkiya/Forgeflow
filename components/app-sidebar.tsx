@@ -13,9 +13,11 @@ import {
 import { auth } from "@clerk/nextjs/server"
 import { listWorkflows } from "@/features/workflows/data"
 import { WorkflowNav } from "@/features/workflows/components/workflow-nav"
-export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { orgId } = await auth();
-  const workflows = orgId ? await listWorkflows(orgId) : [];
+export async function AppSidebar({
+  ...props
+}: React.ComponentProps<typeof Sidebar>) {
+  const { orgId } = await auth()
+  const workflows = orgId ? await listWorkflows(orgId) : []
 
   return (
     <Sidebar collapsible="icon" variant="inset" {...props}>
@@ -26,6 +28,9 @@ export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sideb
             <SidebarMenuButton asChild size="lg">
               <OrganizationSwitcher
                 hidePersonal
+                afterCreateOrganizationUrl="/"
+                afterSelectOrganizationUrl="/"
+                afterLeaveOrganizationUrl="/"
                 skipInvitationScreen
                 appearance={{
                   elements: {

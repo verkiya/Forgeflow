@@ -15,7 +15,7 @@ export default function Error({
   }, [error])
 
   return (
-    <div className="relative flex h-full flex-1 w-full items-center justify-center overflow-hidden bg-background">
+    <div className="relative flex h-full w-full flex-1 items-center justify-center overflow-hidden bg-background">
       {/* ── Dot Grid Background ── */}
       <div
         className="absolute inset-0 z-0 opacity-40 dark:opacity-20"
@@ -36,7 +36,8 @@ export default function Error({
             <div>
               <h4 className="text-base font-semibold">Failed to Load</h4>
               <p className="mt-1 mb-3 text-xs leading-relaxed text-muted-foreground">
-                A critical error occurred while attempting to load this workflow.
+                A critical error occurred while attempting to load this
+                workflow.
               </p>
 
               <div className="flex items-center gap-2 rounded-md border border-destructive/20 bg-destructive/10 p-2 font-mono text-xs text-destructive">

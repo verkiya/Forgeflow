@@ -16,14 +16,14 @@ export async function createWorkflowAction(name: string) {
 
   const workflow = await createWorkflow(orgId, name)
 
-  revalidatePath("/workflows","layout")
+  revalidatePath("/workflows", "layout")
   redirect(`/workflows/${workflow.id}`)
 }
 
 export async function runWorkflowAction() {
   const handle = await tasks.trigger<typeof helloWorldTask>("hello-world", {
-    message: "Triggered from the UI"
+    message: "Triggered from the UI",
   })
-  
+
   return { id: handle.id }
 }
