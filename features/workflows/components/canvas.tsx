@@ -12,7 +12,7 @@ import {
   NodeTypes,
   Edge,
 } from "@xyflow/react"
-import { useLiveblocksFlow ,Cursors} from "@liveblocks/react-flow"
+import { useLiveblocksFlow, Cursors } from "@liveblocks/react-flow"
 import { useTheme } from "next-themes"
 import "@xyflow/react/dist/style.css"
 import "@liveblocks/react-ui/styles.css"
@@ -45,18 +45,12 @@ export function Canvas() {
     getSnapshot,
     getServerSnapshot
   )
-  const {
-    nodes,
-    edges,
-    onNodesChange,
-    onEdgesChange,
-    onConnect,
-    onDelete,
-  } = useLiveblocksFlow({
-    nodes: { initial: initialNodes as any },
-    edges: { initial: initialEdges },
-    suspense: true,
-  })
+  const { nodes, edges, onNodesChange, onEdgesChange, onConnect, onDelete } =
+    useLiveblocksFlow({
+      nodes: { initial: initialNodes as any },
+      edges: { initial: initialEdges },
+      suspense: true,
+    })
 
   return (
     <div className="size-full">
@@ -93,7 +87,7 @@ export function Canvas() {
       >
         <MiniMap zoomable pannable />
         <Controls showInteractive={false} />
-        <Cursors/>
+        <Cursors />
       </ReactFlow>
     </div>
   )
