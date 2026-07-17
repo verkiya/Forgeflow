@@ -1,4 +1,4 @@
-import { Loader2, Database, Sparkles, Server } from "lucide-react"
+import { Loader2, Database, Sparkles } from "lucide-react"
 
 const ForgeflowIcon = ({ className }: { className?: string }) => (
   <svg

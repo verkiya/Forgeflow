@@ -3,15 +3,12 @@
 import React, { useSyncExternalStore } from "react"
 import {
   ReactFlow,
-  Background,
   Controls,
-  type Connection,
   ConnectionLineType,
   Panel,
   MiniMap,
-  BackgroundVariant,
-  NodeTypes,
-  Edge,
+  type Edge,
+  type NodeTypes,
 } from "@xyflow/react"
 import { useLiveblocksFlow, Cursors } from "@liveblocks/react-flow"
 import { useTheme } from "next-themes"
@@ -25,7 +22,7 @@ const emptySubscribe = () => () => {}
 const getSnapshot = () => true
 const getServerSnapshot = () => false
 const nodeTypes: NodeTypes = { step: StepNode }
-const initialNodes = [
+const initialNodes: StepNodeType[] = [
   {
     id: "start",
     type: "step",
@@ -49,7 +46,7 @@ export function Canvas() {
   )
   const { nodes, edges, onNodesChange, onEdgesChange, onConnect, onDelete } =
     useLiveblocksFlow({
-      nodes: { initial: initialNodes as any },
+      nodes: { initial: initialNodes },
       edges: { initial: initialEdges },
       suspense: true,
     })

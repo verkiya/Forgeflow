@@ -1,30 +1,35 @@
 import { liveblocks } from "@/features/workflows/lib/liveblocks"
 import { auth, currentUser } from "@clerk/nextjs/server"
-import { Liveblocks } from "@liveblocks/node"
 
-export async function POST(request: Request) {
-  // Use Clerk SDK for authentication utils
+export async function POST() {
   const { userId, orgId } = await auth()
-  const user = await currentUser()
 
-  if (!userId || !user) {
+  // Workflow rooms are organization-scoped. Reject personal sessions rather
+  // than issuing a broad token which could be reused against another room.
+  if (!userId || !orgId) {
     return new Response("Unauthorized", { status: 401 })
   }
 
-  // Set up ID token permissions
+  const user = await currentUser()
+  if (!user) {
+    return new Response("Unauthorized", { status: 401 })
+  }
+
+  // Permissions are resolved from the user's Clerk organization. This matches
+  // the groupsAccesses entry created for each workflow room.
   const { status, body } = await liveblocks.identifyUser(
     {
-      userId: userId,
-      // Use clerk's orgId in groupIds[] for organization-scoped access
-      groupIds: orgId ? [orgId] : [],
+      userId,
+      groupIds: [orgId],
       organizationId: orgId,
     },
     {
       userInfo: {
         name:
-          user.firstName && user.lastName
-            ? `${user.firstName} ${user.lastName}`
-            : user.firstName || "Anonymous",
+          user.fullName ??
+          user.username ??
+          user.primaryEmailAddress?.emailAddress ??
+          "Anonymous",
         avatar: user.imageUrl,
       },
     }

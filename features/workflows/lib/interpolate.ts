@@ -1,17 +1,16 @@
-export function getByPath(obj: any, path: string): any {
+export type NodeOutputs = Record<string, unknown>
+
+export function getByPath(obj: unknown, path: string): unknown {
   const keys = path.split(/[\.\[\]\'\"]+/).filter(Boolean)
-  let current = obj
+  let current: unknown = obj
   for (const key of keys) {
-    if (current === null || current === undefined) return undefined
-    current = current[key]
+    if (current === null || typeof current !== "object") return undefined
+    current = (current as Record<string, unknown>)[key]
   }
   return current
 }
 
-export function interpolate(
-  template: string,
-  outputs: Record<string, any>
-): string {
+export function interpolate(template: string, outputs: NodeOutputs): string {
   if (!template) return template
   return template.replace(/\{\{\s*(.+?)\s*\}\}/g, (match, path) => {
     const value = getByPath(outputs, path)

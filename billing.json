@@ -1,6 +1,14 @@
 {
   "billing": {
-    "features": {},
+    "features": {
+      "unlimited_workflows": { "name": "Unlimited workflows" },
+      "basic_actions": { "name": "Basic triggers and actions" },
+      "community_support": { "name": "Community support" },
+      "all_free": { "name": "All Free features" },
+      "pro_agent": { "name": "Agent node access" },
+      "priority_queue": { "name": "Priority execution queue" },
+      "premium_support": { "name": "Premium support" }
+    },
     "free_trial_requires_payment_method": true,
     "organization_enabled": true,
     "plans": {
@@ -8,8 +16,12 @@
         "amount": 0,
         "annual_monthly_amount": 0,
         "currency": "",
-        "description": "",
-        "features": [],
+        "description": "Essential features to get you started.",
+        "features": [
+          "unlimited_workflows",
+          "basic_actions",
+          "community_support"
+        ],
         "free_trial_days": null,
         "free_trial_enabled": false,
         "is_recurring": true,
@@ -20,8 +32,13 @@
       "pro": {
         "amount": 2900,
         "currency": "usd",
-        "description": "Pro plan for organizations",
-        "features": [],
+        "description": "Advanced workflows for power users.",
+        "features": [
+          "all_free",
+          "pro_agent",
+          "priority_queue",
+          "premium_support"
+        ],
         "is_recurring": true,
         "name": "Pro",
         "payer_type": "org",

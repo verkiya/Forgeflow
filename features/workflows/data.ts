@@ -1,6 +1,6 @@
 import { and, desc, eq } from "drizzle-orm"
 import { db } from "@/lib/db"
-import { workflows, WorkflowGraph, Workflow } from "@/lib/db/schema"
+import { workflows, WorkflowGraph } from "@/lib/db/schema"
 import { validateGraph } from "./lib/validate-graph"
 
 export async function saveWorkflowGraph({
@@ -14,10 +14,15 @@ export async function saveWorkflowGraph({
 }) {
   const problems = validateGraph(graph)
   if (problems.length > 0) throw new Error(problems.join(" "))
-  await db
+  const [workflow] = await db
     .update(workflows)
     .set({ graph, updatedAt: new Date() })
     .where(and(eq(workflows.id, id), eq(workflows.orgId, orgId)))
+    .returning({ id: workflows.id })
+
+  if (!workflow) {
+    throw new Error("Workflow not found")
+  }
 }
 
 export function listWorkflows(orgId: string) {
@@ -49,7 +54,22 @@ export async function getWorkflow(orgId: string, id: string) {
 }
 
 export async function deleteWorkflow(orgId: string, id: string) {
-  await db
+  const [workflow] = await db
     .delete(workflows)
     .where(and(eq(workflows.id, id), eq(workflows.orgId, orgId)))
+    .returning({ id: workflows.id })
+
+  return workflow
+}
+
+export async function renameWorkflow(orgId: string, id: string, name: string) {
+  const [workflow] = await db
+    .update(workflows)
+    .set({ name, updatedAt: new Date() })
+    .where(and(eq(workflows.id, id), eq(workflows.orgId, orgId)))
+    .returning({ id: workflows.id })
+
+  if (!workflow) {
+    throw new Error("Workflow not found")
+  }
 }

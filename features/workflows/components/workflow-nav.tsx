@@ -7,7 +7,7 @@ import { useTransition } from "react"
 
 import { createWorkflowAction } from "@/features/workflows/actions"
 import { generateSlug } from "@/features/workflows/lib/generate-slug"
-import { useProGate } from "@/features/workflows/hooks/use-pro-gate"
+import { toast } from "sonner"
 
 import {
   SidebarGroup,
@@ -61,20 +61,15 @@ export function WorkflowNav({ workflows }: { workflows: Workflow[] }) {
   const { state } = useSidebar()
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
-  const { isPro, upgrade } = useProGate()
 
   const handleCreateWorkflow = () => {
-    if (!isPro) {
-      upgrade()
-      return
-    }
     const slug = generateSlug()
     startTransition(async () => {
       try {
         const res = await createWorkflowAction(slug)
         router.push(`/workflows/${res.id}`)
-      } catch (error) {
-        console.error("Failed to create workflow:", error)
+      } catch {
+        toast.error("Failed to create workflow")
       }
     })
   }
@@ -109,7 +104,7 @@ export function WorkflowNav({ workflows }: { workflows: Workflow[] }) {
                       {isPending ? (
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
                       ) : (
-                        <Plus className="h-3.5 w-3.5" />
+                        <Plus className="h-3.5 w-3.5 text-primary!  " />
                       )}
                       <span>{isPending ? "Creating..." : "New Workflow"}</span>
                     </Button>

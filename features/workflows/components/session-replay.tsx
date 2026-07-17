@@ -4,21 +4,69 @@ import { useEffect, useRef, useState } from "react"
 import Hls from "hls.js"
 import { Loader2 } from "lucide-react"
 
-export function SessionReplay({ sessionId }: { sessionId: string }) {
+const POLL_INTERVAL_MS = 2000
+
+export function SessionReplay({
+  workflowId,
+  runId,
+  sessionId,
+}: {
+  workflowId: string
+  runId: string
+  sessionId: string
+}) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [isReady, setIsReady] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const replayKey = `${workflowId}:${runId}:${sessionId}`
+  const [renderedReplayKey, setRenderedReplayKey] = useState(replayKey)
+
+  // A new run may reuse this component instance. Reset during render so the
+  // first frame reflects the new recording before its polling effect begins.
+  if (replayKey !== renderedReplayKey) {
+    setRenderedReplayKey(replayKey)
+    setIsReady(false)
+    setError(null)
+  }
 
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout
-    let hls: Hls | null = null
+    const replayUrl = `/api/replays/${sessionId}?${new URLSearchParams({
+      workflowId,
+      runId,
+    })}`
+    let cancelled = false
+    let timeoutId: ReturnType<typeof setTimeout> | undefined
+    let hls: Hls | undefined
 
-    const checkReplay = async () => {
+    const play = () => {
+      const video = videoRef.current
+      if (!video) return
+
+      if (Hls.isSupported()) {
+        hls = new Hls()
+        hls.loadSource(replayUrl)
+        hls.attachMedia(video)
+      } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+        video.src = replayUrl
+      } else {
+        setError("This browser cannot play this recording")
+        return
+      }
+
+      setIsReady(true)
+      video.play().catch(() => {
+        // Autoplay can be blocked despite the muted player; controls remain
+        // available so the viewer can start playback manually.
+      })
+    }
+
+    const waitForReplay = async () => {
       try {
-        const res = await fetch(`/api/replays/${sessionId}`)
-        if (res.status === 404 || res.status === 400 || res.status === 500) {
-          // Polling if recording is not ready yet
-          timeoutId = setTimeout(checkReplay, 3000)
+        const res = await fetch(replayUrl)
+        if (cancelled) return
+
+        if (res.status === 202) {
+          timeoutId = setTimeout(waitForReplay, POLL_INTERVAL_MS)
           return
         }
 
@@ -27,43 +75,20 @@ export function SessionReplay({ sessionId }: { sessionId: string }) {
           return
         }
 
-        setIsReady(true)
-
-        if (videoRef.current) {
-          const video = videoRef.current
-          const src = `/api/replays/${sessionId}`
-
-          if (Hls.isSupported()) {
-            hls = new Hls()
-            hls.loadSource(src)
-            hls.attachMedia(video)
-            hls.on(Hls.Events.MANIFEST_PARSED, () => {
-              video.play().catch(() => {
-                // Ignore auto-play errors (e.g. unmuted)
-              })
-            })
-          } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-            // Safari supports HLS natively
-            video.src = src
-            video.addEventListener("loadedmetadata", () => {
-              video.play().catch(() => {})
-            })
-          }
-        }
-      } catch (err) {
-        timeoutId = setTimeout(checkReplay, 3000)
+        play()
+      } catch {
+        if (!cancelled) setError("Failed to load recording")
       }
     }
 
-    checkReplay()
+    waitForReplay()
 
     return () => {
-      clearTimeout(timeoutId)
-      if (hls) {
-        hls.destroy()
-      }
+      cancelled = true
+      if (timeoutId) clearTimeout(timeoutId)
+      hls?.destroy()
     }
-  }, [sessionId])
+  }, [runId, sessionId, workflowId])
 
   if (error) {
     return (
@@ -86,6 +111,7 @@ export function SessionReplay({ sessionId }: { sessionId: string }) {
         controls
         muted
         autoPlay
+        playsInline
         className="h-full max-h-full w-full object-contain"
       />
     </div>

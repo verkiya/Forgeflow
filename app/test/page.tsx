@@ -8,35 +8,23 @@ import {
   AlertTriangle,
   ArrowRight,
   Bot,
-  Calendar as CalendarIcon,
   CheckCircle2,
-  ChevronRight,
   CircleDashed,
   Clock,
-  Code2,
-  Command as CommandIcon,
-  Cpu,
-  CreditCard,
   Database,
   Globe,
   Info,
   Key,
-  LayoutDashboard,
   Loader2,
-  Lock,
   Mail,
-  MessageSquare,
   Moon,
   Play,
   Plus,
   Search,
   Settings,
-  Shield,
   Sparkles,
   Sun,
-  User,
   Workflow,
-  Zap,
 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -69,14 +57,6 @@ import {
   InputOTPGroup,
   InputOTPSlot,
 } from "@/components/ui/input-otp"
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { toast } from "sonner"
 
@@ -588,7 +568,10 @@ export default function DesignSystemPage() {
                     <span className="text-primary">await</span>{" "}
                     client.workflows.
                     <span className="text-purple-500">trigger</span>(
-                    <span className="text-orange-500">'invoice-sync'</span>);
+                    <span className="text-orange-500">
+                      &apos;invoice-sync&apos;
+                    </span>
+                    );
                   </p>
                 </div>
               </div>
@@ -1075,8 +1058,8 @@ export default function DesignSystemPage() {
                   <AlertCircle className="h-4 w-4" />
                   <AlertTitle>Execution Failed</AlertTitle>
                   <AlertDescription>
-                    Node "Fetch Data" timed out after 30 seconds. Check your
-                    endpoint.
+                    Node &quot;Fetch Data&quot; timed out after 30 seconds.
+                    Check your endpoint.
                   </AlertDescription>
                 </Alert>
               </div>

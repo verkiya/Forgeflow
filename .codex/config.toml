@@ -1,0 +1,7 @@
+[mcp_servers.trigger]
+command = "npx"
+args = [
+    "trigger.dev@4.5.4",
+    "mcp",
+    "--dev-only",
+]
