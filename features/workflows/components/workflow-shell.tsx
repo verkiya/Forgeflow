@@ -8,6 +8,7 @@ import {
 import { ReactFlowProvider } from "@xyflow/react"
 import { RightSidebar } from "./right-sidebar"
 import { Canvas } from "./canvas"
+import { ConsolePanel } from "./console-panel"
 
 export function WorkflowShell({ workflowId }: { workflowId: string }) {
   return (
@@ -23,11 +24,7 @@ export function WorkflowShell({ workflowId }: { workflowId: string }) {
             <ResizableHandle withHandle />
             {/* Bottom panel: Logs */}
             <ResizablePanel maxSize="18rem" defaultSize="16rem" minSize="16rem">
-              <div className="flex size-full items-center justify-center bg-muted/20 p-6">
-                <span className="font-semibold text-muted-foreground">
-                  Logs
-                </span>
-              </div>
+              <ConsolePanel />
             </ResizablePanel>
           </ResizablePanelGroup>
         </ResizablePanel>

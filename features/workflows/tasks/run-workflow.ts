@@ -8,6 +8,12 @@ import { interpolate } from "../lib/interpolate"
 export type RunStep = {
   id: string
   status: "pending" | "running" | "done" | "failed"
+  type: string
+  title: string
+  startedAt?: number
+  durationMs?: number
+  output?: any
+  error?: string
 }
 
 export const runWorkflowTask = task({
@@ -26,16 +32,21 @@ export const runWorkflowTask = task({
       .filter((id) => connected.has(id))
     logger.log(`Running workflow ${workflow.name}`, { steps: order.length })
 
-    const steps: RunStep[] = order.map((id) => ({
-      id,
-      status: "pending",
-    }))
+    const steps: RunStep[] = order.map((id) => {
+      const node = byId.get(id)!
+      return {
+        id,
+        status: "pending",
+        type: node.data.type,
+        title: node.data.title,
+      }
+    })
     metadata.set("steps", steps)
 
-    const updateStep = async (stepId: string, status: RunStep["status"]) => {
+    const updateStep = async (stepId: string, updates: Partial<RunStep>) => {
       const step = steps.find((s) => s.id === stepId)
       if (step) {
-        step.status = status
+        Object.assign(step, updates)
         metadata.set("steps", steps)
         await metadata.flush()
       }
@@ -58,7 +69,8 @@ export const runWorkflowTask = task({
       const node = byId.get(id)!
       logger.log(`Running step: ${node.data.title}`)
 
-      await updateStep(id, "running")
+      await updateStep(id, { status: "running", startedAt: Date.now() })
+      const startTime = performance.now()
 
       const executor = nodeExecutors[node.data.type]
       if (executor) {
@@ -73,14 +85,25 @@ export const runWorkflowTask = task({
             getStagehand,
           })
           outputs[id] = result
-          await updateStep(id, "done")
-        } catch (error) {
-          await updateStep(id, "failed")
+          await updateStep(id, {
+            status: "done",
+            output: result,
+            durationMs: performance.now() - startTime,
+          })
+        } catch (error: any) {
+          await updateStep(id, {
+            status: "failed",
+            error: error?.message || String(error),
+            durationMs: performance.now() - startTime,
+          })
           await stagehand?.close()
           throw error
         }
       } else {
-        await updateStep(id, "done")
+        await updateStep(id, {
+          status: "done",
+          durationMs: performance.now() - startTime,
+        })
       }
     }
     await stagehand?.close()
