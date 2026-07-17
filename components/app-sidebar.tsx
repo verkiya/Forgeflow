@@ -27,24 +27,24 @@ export async function AppSidebar({
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem className="mt-2 mb-2 px-2">
-            <Link href="/" className="flex items-center gap-2">
+            <Link href="/" className="flex items-center gap-0">
               <Image
                 src="/forgeflow.svg"
-                alt="Forgeflow Logo"
-                width={30}
-                height={30}
+                alt="ForgeFlow Logo"
+                width={32}
+                height={32}
                 className="shrink-0"
               />
               <div className="flex items-center gap-1.5 group-data-[collapsible=icon]:hidden">
-                <span className="-ml-0.5 bg-gradient-to-br from-primary to-[oklch(0.63_0.13_159)] bg-clip-text text-2xl font-bold tracking-tighter text-transparent">
+                <span className="-ml-3.0! mt-1 bg-gradient-to-br z-2! from-primary to-[oklch(0.63_0.13_159)] bg-clip-text text-2xl font-bold tracking-tighter text-transparent">
                   orgeflow
                 </span>
-                {has({ plan: "pro" }) ? (
+                {has({ plan: "org:pro" }) ? (
                   <span className="rounded-full bg-primary/20 px-2 py-0.5 text-[10px] font-bold tracking-wider text-primary uppercase">
                     Pro
                   </span>
                 ) : (
-                  <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-bold tracking-wider text-muted-foreground uppercase">
+                  <span className="rounded-full bg-sidebar-border! px-2 py-0.5 text-[10px] font-bold tracking-wider text-muted-foreground uppercase">
                     Free
                   </span>
                 )}

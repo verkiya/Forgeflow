@@ -4,8 +4,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "npm run format && npx concurrently -c \"blue,green\" -n \"next,trigger\" \"next dev\" \"npx trigger.dev@latest dev\"",
-    "build": "npm run format && next build",
+    "dev": "npx concurrently -c \"blue,green\" -n \"next,trigger\" \"next dev\" \"npx trigger.dev@latest dev\"",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "format": "prettier --write \"{app,components,features,hooks,lib}/**/*.{ts,tsx}\" \"*.{ts,tsx}\"",

@@ -49,7 +49,7 @@ export async function runWorkflowAction({
   // organization-level feature while the active plan is still available here.
   if (
     graph.nodes.some((node) => node.data.type === "agent") &&
-    !has({ plan: "pro" })
+    !has({ plan: "org:pro" })
   ) {
     throw new Error("The Agent node requires the Pro plan")
   }

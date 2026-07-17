@@ -28,25 +28,26 @@ The workflow engine currently includes Start, Open URL, Act, Extract, Observe, A
 - [Local development and operations](#local-development) — environment, migrations, worker, checks, deployment, and incident triage.
 - [Engineering conventions](#engineering-conventions) — how to make safe future changes.
 - [/learnings](/learnings) — maintainers&apos; rationale, invariants, failure modes, and change playbooks.
+- [PROJECT_MEMORY.md](PROJECT_MEMORY.md) — the handoff record for future engineers and AI agents.
 
 ## Features
 
-| Area | Included behavior |
-| --- | --- |
-| Visual authoring | React Flow canvas, node palette, connection-aware field tokens, graph validation, shared cursors, and organization-scoped rename/delete controls |
-| Collaboration | Liveblocks rooms scoped to the active Clerk organization |
-| Durable execution | Trigger.dev task runs ordered topologically with live metadata for each step |
-| Browser automation | Browserbase-hosted Stagehand session shared by all browser nodes in one run |
-| AI automation | Configurable Stagehand Agent node, available to Pro organizations |
-| Outputs | Step output, errors, durations, upstream interpolation, and serialized Observe results |
-| Replay | Authenticated, Pro-gated HLS playback through a server-side Browserbase proxy |
-| Email | Resend delivery with per-run/per-node idempotency keys |
-| Reliability | Database ownership predicates, server-action authorization, cleanup in task `finally`, and Sentry integration |
+| Area               | Included behavior                                                                                                                                |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Visual authoring   | React Flow canvas, node palette, connection-aware field tokens, graph validation, shared cursors, and organization-scoped rename/delete controls |
+| Collaboration      | Liveblocks rooms scoped to the active Clerk organization                                                                                         |
+| Durable execution  | Trigger.dev task runs ordered topologically with live metadata for each step                                                                     |
+| Browser automation | Browserbase-hosted Stagehand session shared by all browser nodes in one run                                                                      |
+| AI automation      | Configurable Stagehand Agent node, available to Pro organizations                                                                                |
+| Outputs            | Step output, errors, durations, upstream interpolation, and serialized Observe results                                                           |
+| Replay             | Authenticated, Pro-gated HLS playback through a server-side Browserbase proxy                                                                    |
+| Email              | Resend delivery with per-run/per-node idempotency keys                                                                                           |
+| Reliability        | Database ownership predicates, server-action authorization, cleanup in task `finally`, and Sentry integration                                    |
 
 ## Screenshots
 
-| Workflow canvas | Runtime logs |
-| --- | --- |
+| Workflow canvas                       | Runtime logs                            |
+| ------------------------------------- | --------------------------------------- |
 | ![Workflow canvas](design/canvas.png) | ![Workflow logs](design/logs-panel.png) |
 
 Additional implementation captures live in [`design/`](design/).
@@ -69,12 +70,12 @@ flowchart LR
 
 ### State boundaries
 
-| State | Owner | Why it lives there |
-| --- | --- | --- |
-| Canvas edits, cursors, room presence | Liveblocks | Editors need low-latency collaborative updates. |
-| Runnable workflow graph | Postgres JSONB | The background task needs an organization-owned, server-readable snapshot. |
-| Run status and step progress | Trigger.dev run metadata | The UI can subscribe to queued/executing/completed work in realtime. |
-| Browser session | Browserbase | One lazily created session is reused across browser steps so the run has one coherent replay. |
+| State                                | Owner                    | Why it lives there                                                                            |
+| ------------------------------------ | ------------------------ | --------------------------------------------------------------------------------------------- |
+| Canvas edits, cursors, room presence | Liveblocks               | Editors need low-latency collaborative updates.                                               |
+| Runnable workflow graph              | Postgres JSONB           | The background task needs an organization-owned, server-readable snapshot.                    |
+| Run status and step progress         | Trigger.dev run metadata | The UI can subscribe to queued/executing/completed work in realtime.                          |
+| Browser session                      | Browserbase              | One lazily created session is reused across browser steps so the run has one coherent replay. |
 
 ### Runtime lifecycle
 
@@ -107,13 +108,13 @@ This split is deliberate. Liveblocks can change continuously while people edit; 
 
 The only application table is `workflows`:
 
-| Column | Meaning | Ownership rule |
-| --- | --- | --- |
-| `id` | UUID identifying a workflow and its Liveblocks room | Never trust it alone for an operation. |
-| `org_id` | Clerk organization id | Required in every workflow read, update, and delete predicate. |
-| `name` | User-visible name | Trimmed, non-empty, and limited to 120 characters at creation and rename. |
-| `graph` | JSONB `{ nodes, edges }` React Flow snapshot | Validated before server-side persistence; this is the execution contract. |
-| `created_at`, `updated_at` | Database timestamps | Used for list ordering and audit context. |
+| Column                     | Meaning                                             | Ownership rule                                                            |
+| -------------------------- | --------------------------------------------------- | ------------------------------------------------------------------------- |
+| `id`                       | UUID identifying a workflow and its Liveblocks room | Never trust it alone for an operation.                                    |
+| `org_id`                   | Clerk organization id                               | Required in every workflow read, update, and delete predicate.            |
+| `name`                     | User-visible name                                   | Trimmed, non-empty, and limited to 120 characters at creation and rename. |
+| `graph`                    | JSONB `{ nodes, edges }` React Flow snapshot        | Validated before server-side persistence; this is the execution contract. |
+| `created_at`, `updated_at` | Database timestamps                                 | Used for list ordering and audit context.                                 |
 
 There is intentionally no ForgeFlow run-history table. Trigger.dev owns queued and completed run data, and its metadata drives the active console. If durable product-level run history is introduced, model it explicitly instead of attempting to reconstruct it from Liveblocks or a realtime subscription.
 
@@ -148,15 +149,17 @@ Interpolation happens immediately before an executor runs. Node results are inde
 
 ### Node reference
 
-| Node | Kind | Required fields | Output paths | Runtime behavior |
-| --- | --- | --- | --- | --- |
-| Start | Trigger | None | None | The required graph entry point; no executor. |
-| Open URL | Action | `url` | `url`, `title` | Navigates the shared Stagehand page. |
-| Act | Action | `instruction` | `success`, `message`, `url` | Performs one atomic Stagehand action. |
-| Extract | Action | `instruction` | `extraction` | Returns Stagehand extraction data. |
-| Observe | Action | `instruction` | `matches` | Returns serializable selector/description matches, never raw browser objects. |
-| Agent | Action | `instruction` | `success`, `message`, `completed` | Runs the bounded Stagehand Agent; requires the organization Pro plan. |
-| Send Email | Action | `to`, `subject`, `body` | `id` | Sends a text email through Resend with a run/node idempotency key. |
+| Node       | Kind    | Manifest fields         | Output paths                      | Runtime behavior                                                              |
+| ---------- | ------- | ----------------------- | --------------------------------- | ----------------------------------------------------------------------------- |
+| Start      | Trigger | None                    | None                              | The required graph entry point; no executor.                                  |
+| Open URL   | Action  | `url`                   | `url`, `title`                    | Navigates the shared Stagehand page.                                          |
+| Act        | Action  | `instruction`           | `success`, `message`, `url`       | Performs one atomic Stagehand action.                                         |
+| Extract    | Action  | `instruction`           | `extraction`                      | Returns Stagehand extraction data.                                            |
+| Observe    | Action  | `instruction`           | `matches`                         | Returns serializable selector/description matches, never raw browser objects. |
+| Agent      | Action  | `instruction`           | `success`, `message`, `completed` | Runs the bounded Stagehand Agent; requires the organization Pro plan.         |
+| Send Email | Action  | `to`, `subject`, `body` | `id`                              | Sends a text email through Resend with a run/node idempotency key.            |
+
+The registry&apos;s `required` flag is editor metadata: it marks a field in the inspector, but the current server validator enforces only graph structure. Empty or malformed node values can therefore reach an executor and fail there. Field-level validation is intentionally listed as future work and must be added at both the client feedback and server execution boundaries.
 
 ### Adding or changing a node
 
@@ -172,15 +175,15 @@ Browser session replay is intentionally server-mediated: Browserbase playlist re
 
 ### Capability matrix
 
-| Capability | Browser visibility | Server-side check | Primary owner |
-| --- | --- | --- | --- |
-| Create, list, edit, rename, delete workflow | Protected app only | Active Clerk organization and `org_id` database predicate | Next.js + Postgres |
-| Realtime canvas | Protected app only | Liveblocks identity includes the current organization as its only group | Clerk + Liveblocks |
-| Run standard nodes | Visible to organization members | Server Action validates and saves the graph before Trigger dispatch | Next.js + Trigger.dev |
-| Run Agent node | Upgrade affordance in UI | `has({ plan: "pro" })` is checked in the Server Action | Clerk Billing |
-| Cancel a run | Active run controls | Workflow database ownership plus Trigger `workflow:{id}` tag | Next.js + Trigger.dev |
-| View replay | Pro UI only | User, org, Pro plan, workflow ownership, run tag, and output session id | Next.js + Browserbase |
-| Send email | Workflow action | Resend response validation and `(runId, nodeId)` idempotency | Trigger.dev + Resend |
+| Capability                                  | Browser visibility              | Server-side check                                                       | Primary owner         |
+| ------------------------------------------- | ------------------------------- | ----------------------------------------------------------------------- | --------------------- |
+| Create, list, edit, rename, delete workflow | Protected app only              | Active Clerk organization and `org_id` database predicate               | Next.js + Postgres    |
+| Realtime canvas                             | Protected app only              | Liveblocks identity includes the current organization as its only group | Clerk + Liveblocks    |
+| Run standard nodes                          | Visible to organization members | Server Action validates and saves the graph before Trigger dispatch     | Next.js + Trigger.dev |
+| Run Agent node                              | Upgrade affordance in UI        | `has({ plan: "pro" })` is checked in the Server Action                  | Clerk Billing         |
+| Cancel a run                                | Active run controls             | Workflow database ownership plus Trigger `workflow:{id}` tag            | Next.js + Trigger.dev |
+| View replay                                 | Pro UI only                     | User, org, Pro plan, workflow ownership, run tag, and output session id | Next.js + Browserbase |
+| Send email                                  | Workflow action                 | Resend response validation and `(runId, nodeId)` idempotency            | Trigger.dev + Resend  |
 
 ## Security and tenancy
 
@@ -195,20 +198,44 @@ Clerk organizations are ForgeFlow&apos;s tenancy boundary. The UI gate is only a
 
 The replay player treats HTTP `202` as “recording not ready” and polls. It treats authorization and other response errors as failures. HLS playback is intentionally served with `no-store` semantics because manifests contain short-lived signed media URLs.
 
+### Route surface
+
+| Route                                                   | Access                                        | Role                                                                                                   |
+| ------------------------------------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `/`, `/workflows/[id]`, `/pricing`                      | Clerk-protected                               | Dashboard, workflow editor, and organization billing UI.                                               |
+| `/sign-in`, `/sign-up`, `/choose-org`                   | Public/auth flow                              | Clerk&apos;s authentication and organization-selection surfaces.                                       |
+| `/learnings`, `/test`                                   | Public                                        | Engineering notebook and visual design-system sandbox; neither is a workflow runtime surface.          |
+| `POST /api/liveblocks/auth` and `/api/liveblocks/users` | Clerk-protected plus route-level org checks   | Issues scoped room identity and resolves only same-organization profiles.                              |
+| `GET /api/replays/[sessionId]`                          | Clerk-protected plus Pro and ownership checks | Proxies an authorized Browserbase HLS playlist. It requires `workflowId` and `runId` query parameters. |
+| `/api/sentry-example-api`, `/sentry-example-page`       | Clerk-protected                               | Intentional Sentry integration probes, not product features.                                           |
+
+The Clerk proxy protects every route except the listed public routes. API handlers still validate the organization or capability they need; middleware authentication alone is not treated as tenancy authorization.
+
 ## Tech stack
 
-| Category | Technology |
-| --- | --- |
-| Framework | Next.js 16 App Router, React 19, TypeScript |
-| UI | Tailwind CSS 4, shadcn/ui, Base UI, Lucide |
-| Canvas | `@xyflow/react` and `@liveblocks/react-flow` |
-| Realtime | Liveblocks rooms, presence, and user resolution |
+| Category                   | Technology                                           |
+| -------------------------- | ---------------------------------------------------- |
+| Framework                  | Next.js 16 App Router, React 19, TypeScript          |
+| UI                         | Tailwind CSS 4, shadcn/ui, Base UI, Lucide           |
+| Canvas                     | `@xyflow/react` and `@liveblocks/react-flow`         |
+| Realtime                   | Liveblocks rooms, presence, and user resolution      |
 | Authentication and billing | Clerk users, organizations, and organization pricing |
-| Database | Neon Postgres, Drizzle ORM, Drizzle Kit |
-| Background work | Trigger.dev v4 |
-| Browser automation | Browserbase SDK and Stagehand v3 |
-| Email | Resend |
-| Observability | Sentry and Browserbase session replay |
+| Database                   | Neon Postgres, Drizzle ORM, Drizzle Kit              |
+| Background work            | Trigger.dev v4                                       |
+| Browser automation         | Browserbase SDK and Stagehand v3                     |
+| Email                      | Resend                                               |
+| Observability              | Sentry and Browserbase session replay                |
+
+## Observability, error handling, and operational safety
+
+Sentry initializes on client, server, and edge runtimes. Browser telemetry enables tracing at a `1.0` sample rate, Session Replay at `0.1` normally and `1.0` on errors, and Sentry logs; server and edge tracing are also sampled at `1.0`. The Next.js integration routes browser telemetry through `/monitoring`, widens client source-map upload, and enables Vercel Cron monitor instrumentation when the deployment platform supports it. These defaults favor visibility over telemetry cost and should be deliberately re-tuned for production traffic.
+
+The product has branded route-loading and local error boundaries; the global error boundary explicitly captures exceptions with Sentry. The Sentry example page and API deliberately throw errors for integration verification. They should not be presented as customer-facing functionality.
+
+Two repository scripts need operational care:
+
+- `check-db.ts` selects and prints every workflow row. Use it only against a controlled environment because graph contents may include URLs, prompts, and email recipients.
+- `verify.js` reads `.env.local` and runs `DROP TABLE IF EXISTS users CASCADE`. Despite its name, it is destructive and is not part of the normal setup, validation, or deployment workflow.
 
 ## Installation
 
@@ -233,18 +260,18 @@ npm run db:migrate
 
 ### Environment variables
 
-| Variable | Required | Used for |
-| --- | --- | --- |
-| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Yes | Clerk client authentication |
-| `CLERK_SECRET_KEY` | Yes | Server-side Clerk authentication and organization checks |
-| `DATABASE_URL` | Yes | Application database connection |
-| `DATABASE_URL_UNPOOLED` | Recommended | Direct connection for Drizzle migrations |
-| `LIVEBLOCKS_SECRET_KEY` | Yes | Server-side room access tokens |
-| `BROWSERBASE_API_KEY` | Yes for browser nodes | Stagehand sessions and server-side replay retrieval |
-| `RESEND_API_KEY` | Yes for email nodes | Transactional email delivery |
-| `TRIGGER_SECRET_KEY` | Yes | Trigger.dev task execution and management API |
-| `SENTRY_DSN` | Optional | Client, server, and edge error reporting |
-| `SENTRY_AUTH_TOKEN` | Optional | Source-map upload during deployment builds |
+| Variable                            | Required                                        | Used for                                                 |
+| ----------------------------------- | ----------------------------------------------- | -------------------------------------------------------- |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Yes                                             | Clerk client authentication                              |
+| `CLERK_SECRET_KEY`                  | Yes                                             | Server-side Clerk authentication and organization checks |
+| `DATABASE_URL`                      | Yes                                             | Application database connection                          |
+| `DATABASE_URL_UNPOOLED`             | Recommended                                     | Direct connection for Drizzle migrations                 |
+| `LIVEBLOCKS_SECRET_KEY`             | Yes                                             | Server-side room access tokens                           |
+| `BROWSERBASE_API_KEY`               | Yes for browser nodes                           | Stagehand sessions and server-side replay retrieval      |
+| `RESEND_API_KEY`                    | Yes for email nodes                             | Transactional email delivery                             |
+| `TRIGGER_SECRET_KEY`                | Yes                                             | Trigger.dev task execution and management API            |
+| `SENTRY_DSN`                        | Optional for a non-reporting environment        | Client, server, and edge telemetry initialization        |
+| `SENTRY_AUTH_TOKEN`                 | Required only when uploading Sentry source maps | Authenticates the build-time Sentry plugin               |
 
 Configure the organization-level `pro` plan in Clerk Billing to enable Agent and replay access.
 
@@ -254,9 +281,10 @@ Configure the organization-level `pro` plan in Clerk Billing to enable Agent and
 npm run dev
 ```
 
-The development script formats the application source, starts Next.js, and starts the Trigger.dev development worker together. For one-off checks:
+The development script starts Next.js and the Trigger.dev development worker together. It does not format source automatically; run the formatter intentionally before review. For one-off checks:
 
 ```bash
+npm run format
 npm run typecheck
 npm run lint
 npm run build
@@ -264,29 +292,30 @@ npm run build
 
 ### Operational commands and release gate
 
-| Command | Purpose | Expected use |
-| --- | --- | --- |
-| `npm run dev` | Formats application source, starts Next.js, and starts the Trigger.dev development worker | Daily local development. |
-| `npm run typecheck` | TypeScript without emitting files | Before every review or commit. |
-| `npm run lint` | ESLint for the application, excluding agent/template fixtures | Before every review or commit. |
-| `npm run build` | Formats source and runs the production Next.js build | Release gate; catches server/client boundary issues. |
-| `npm run db:generate` | Generates Drizzle migration files after schema changes | Only when intentionally evolving the schema. |
-| `npm run db:migrate` | Applies migration files | Controlled deployment step; run against the intended database only. |
-| `npm run db:studio` | Opens Drizzle data inspector | Local/debugging use; treat production data as sensitive. |
+| Command               | Purpose                                                               | Expected use                                                            |
+| --------------------- | --------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `npm run dev`         | Starts Next.js and the Trigger.dev development worker                 | Daily local development.                                                |
+| `npm run format`      | Runs Prettier on application TypeScript/TSX and root TypeScript files | Intentional source-formatting step; it is not part of `dev` or `build`. |
+| `npm run typecheck`   | TypeScript without emitting files                                     | Before every review or commit.                                          |
+| `npm run lint`        | ESLint for the application, excluding agent/template fixtures         | Before every review or commit.                                          |
+| `npm run build`       | Runs the production Next.js build                                     | Release gate; catches server/client boundary issues.                    |
+| `npm run db:generate` | Generates Drizzle migration files after schema changes                | Only when intentionally evolving the schema.                            |
+| `npm run db:migrate`  | Applies migration files                                               | Controlled deployment step; run against the intended database only.     |
+| `npm run db:studio`   | Opens Drizzle data inspector                                          | Local/debugging use; treat production data as sensitive.                |
 
 Before a release, run the three static checks, migrate the intended database, deploy both Next.js and the Trigger worker, and exercise a real organization-scoped run. Include a Pro replay check and confirm that a different organization cannot retrieve its workflow, run, Liveblocks user data, or replay.
 
 ### Incident triage
 
-| Symptom | Start here | Likely boundary |
-| --- | --- | --- |
-| Workflow never starts | Server Action error and Trigger run creation | Graph validation, Clerk org, Trigger key, or worker deployment |
-| Step stays pending or running | Trigger run metadata and worker logs | Disconnected graph, worker mismatch, executor failure, or metadata publish |
-| Browser step fails | Trigger log plus Browserbase session | Browserbase key, Stagehand instruction, page state, or external target |
-| Replay remains pending | Replay route response and Browserbase recording status | Recording still processing; `202` should be retried |
-| Replay is forbidden | Clerk organization/plan, workflow ownership, Trigger tag, output session id | Security chain is correctly refusing access |
-| Email is missing or duplicated | Trigger run id/node id and Resend result | Sender configuration, Resend error response, or side-effect idempotency |
-| Canvas collaboration is absent | Liveblocks auth route and browser network requests | No active organization, Liveblocks secret, or room group mismatch |
+| Symptom                        | Start here                                                                  | Likely boundary                                                            |
+| ------------------------------ | --------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| Workflow never starts          | Server Action error and Trigger run creation                                | Graph validation, Clerk org, Trigger key, or worker deployment             |
+| Step stays pending or running  | Trigger run metadata and worker logs                                        | Disconnected graph, worker mismatch, executor failure, or metadata publish |
+| Browser step fails             | Trigger log plus Browserbase session                                        | Browserbase key, Stagehand instruction, page state, or external target     |
+| Replay remains pending         | Replay route response and Browserbase recording status                      | Recording still processing; `202` should be retried                        |
+| Replay is forbidden            | Clerk organization/plan, workflow ownership, Trigger tag, output session id | Security chain is correctly refusing access                                |
+| Email is missing or duplicated | Trigger run id/node id and Resend result                                    | Sender configuration, Resend error response, or side-effect idempotency    |
+| Canvas collaboration is absent | Liveblocks auth route and browser network requests                          | No active organization, Liveblocks secret, or room group mismatch          |
 
 ## Project structure
 
@@ -349,6 +378,19 @@ trigger.config.ts            Trigger.dev worker configuration
 4. Run `npm run db:migrate` as part of the release process.
 5. Deploy the Next.js app and deploy or connect the Trigger.dev worker for the same environment.
 6. Verify a Pro organization can complete a browser run and view its replay without exposing `BROWSERBASE_API_KEY` in the browser.
+
+## Scale and present constraints
+
+ForgeFlow favors clear ownership over premature caching. Liveblocks is throttled to 16 ms for collaborative canvas updates, Trigger metadata is intentionally compact, and one Browserbase session is shared across browser nodes in a run to preserve page state and avoid unnecessary sessions. The canvas is constrained to a 16 px grid and `maxZoom` 1.3; dark mode is currently forced even though the CSS token system defines both light and dark values.
+
+The following limits are current implementation facts, not guarantees hidden behind the UI:
+
+- The database migration defines only the workflow primary key. As workflow volume grows, evaluate an index aligned with `org_id` plus the list ordering (`created_at`) before list queries become a bottleneck.
+- Workflow persistence happens when Run saves the canvas. There is no explicit Save command and no durable ForgeFlow run-history table.
+- Replay retrieval selects the first Browserbase page in a recording. Multi-page sessions are not yet selectable in the player.
+- Workflow deletion removes the database row first and then attempts Liveblocks room deletion. The room cleanup is best-effort; a Liveblocks failure is logged and does not restore the workflow.
+- Clerk Billing defines more plan features than the application currently enforces. In code, the `pro` plan gates the Agent node and replay; there is no implemented priority queue or workflow-count enforcement.
+- The app has no explicit application-level rate limiting and no automated test suite. Authorization, graph validation, external-service failures, and replay access should be exercised as part of release verification.
 
 ## Roadmap
 
