@@ -9,6 +9,9 @@
     <img src="https://img.shields.io/badge/TypeScript-5-3178c6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript" />
     <img src="https://img.shields.io/badge/Trigger.dev-4-6d28d9?style=flat-square" alt="Trigger.dev 4" />
     <img src="https://img.shields.io/badge/Browserbase-Stagehand-111827?style=flat-square" alt="Browserbase and Stagehand" />
+    <img src="https://img.shields.io/badge/Liveblocks-3-000000?style=flat-square&logo=liveblocks&logoColor=white" alt="Liveblocks" />
+    <img src="https://img.shields.io/badge/Neon-00E599?style=flat-square&logo=neon&logoColor=black" alt="Neon Postgres" />
+    <img src="https://img.shields.io/badge/Clerk-6C47FF?style=flat-square&logo=clerk&logoColor=white" alt="Clerk Auth" />
   </p>
 </div>
 

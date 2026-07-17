@@ -57,12 +57,12 @@ export default async function WorkflowPage({
           {workflow.name}
         </h1>
 
-        <div className="ml-auto flex items-center">
+        <div className="ml-auto flex items-center pr-4">
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="ghost" size="icon" className="text-yellow-500/90 hover:text-yellow-300 hover:bg-yellow-400/10">
-                <Info className="size-5" />
-                <span className="sr-only">Canvas Controls Info</span>
+              <Button variant="secondary" size="sm" className="text-yellow-300 gap-2 hover:text-yellow-200 hover:bg-yellow-300/10">
+                <Info className="size-4" />
+                <span className="font-medium">Click Me</span>
               </Button>
             </DialogTrigger>
             <DialogContent className="w-[720px]! max-w-none! h-[83vh]! max-h-none! overflow-y-auto">
