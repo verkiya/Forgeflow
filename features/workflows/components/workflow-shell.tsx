@@ -24,7 +24,7 @@ export function WorkflowShell({ workflowId }: { workflowId: string }) {
             <ResizableHandle withHandle />
             {/* Bottom panel: Logs */}
             <ResizablePanel maxSize="18rem" defaultSize="16rem" minSize="16rem">
-              <ConsolePanel />
+              <ConsolePanel workflowId={workflowId} />
             </ResizablePanel>
           </ResizablePanelGroup>
         </ResizablePanel>

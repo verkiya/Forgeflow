@@ -7,8 +7,16 @@ export async function observe({
   stagehand: Stagehand
   instruction: string
 }) {
-  const result = await stagehand.observe(instruction)
+  const results = await stagehand.observe(instruction)
+
+  // Stagehand observation objects can contain runtime-only fields. Publish the
+  // stable, serializable details needed by downstream interpolation and logs.
+  const matches = results.map(({ selector, description }) => ({
+    selector,
+    description,
+  }))
+
   return {
-    matches: result,
+    matches,
   }
 }

@@ -12,6 +12,12 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Repository-local agent instructions and template fixtures are not app
+    // source. Linting them applies this project's React plugin to unrelated
+    // sample apps and prevents `npm run lint` from reaching ForgeFlow code.
+    ".agents/**",
+    ".claude/**",
+    ".cursor/**",
   ]),
 ]);
 

@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect, useTransition } from "react"
-import { Play, Trash2, Pen, Square } from "lucide-react"
+import { useState, useTransition } from "react"
+import { Pen, Play, Square, Trash2 } from "lucide-react"
 import { useReactFlow, useStore } from "@xyflow/react"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
@@ -28,7 +28,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { cn } from "@/lib/utils"
 
 import {
   nodeRegistry,
@@ -43,6 +42,7 @@ import {
   deleteWorkflowAction,
   runWorkflowAction,
   cancelWorkflowRunAction,
+  renameWorkflowAction,
 } from "@/features/workflows/actions"
 import { NodeIcon } from "./node-icon"
 import { useLatestRunSteps } from "./workflow-runs-provider"
@@ -123,10 +123,6 @@ function Inspector({ node }: { node: StepNodeType | undefined }) {
   const { updateNodeData } = useReactFlow<StepNodeType>()
   const [lastFocusedField, setLastFocusedField] = useState<string | null>(null)
   const upstreamConnections = useUpstreamConnections(node)
-
-  useEffect(() => {
-    setLastFocusedField(null)
-  }, [node?.id])
 
   if (!node) {
     return (
@@ -321,19 +317,70 @@ function Palette() {
 function ActionsMenu({ workflowId }: { workflowId: string }) {
   const [isPending, startTransition] = useTransition()
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
+  const [isRenameOpen, setIsRenameOpen] = useState(false)
+  const [newName, setNewName] = useState("")
   const router = useRouter()
   return (
     <div className="flex items-center gap-1">
-      <Button
-        size="icon"
-        variant="secondary"
-        className="size-8 text-muted-foreground transition-colors hover:bg-white/10 hover:text-white"
-        onClick={() => {
-          // TODO: rename the workflow
+      <Popover
+        open={isRenameOpen}
+        onOpenChange={(open) => {
+          setIsRenameOpen(open)
+          if (open) setNewName("") // Reset on open, could pre-fill with current name if we had it
         }}
       >
-        <Pen className="size-3.5" />
-      </Button>
+        <PopoverTrigger asChild>
+          <Button
+            size="icon"
+            variant="secondary"
+            className="size-8 text-muted-foreground transition-colors hover:bg-white/10 hover:text-white"
+            disabled={isPending}
+          >
+            <Pen className="size-3.5" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent align="end" className="w-64 space-y-3">
+          <div className="space-y-1">
+            <h4 className="text-sm font-medium">Rename workflow</h4>
+            <Input
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              placeholder="New workflow name"
+              className="mt-2 text-sm"
+              autoFocus
+            />
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8"
+              disabled={isPending}
+              onClick={() => setIsRenameOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              size="sm"
+              className="h-8"
+              disabled={isPending || !newName.trim()}
+              onClick={() => {
+                startTransition(async () => {
+                  try {
+                    await renameWorkflowAction(workflowId, newName.trim())
+                    toast.success("Workflow renamed")
+                    setIsRenameOpen(false)
+                  } catch {
+                    toast.error("Failed to rename workflow")
+                  }
+                })
+              }}
+            >
+              Save
+            </Button>
+          </div>
+        </PopoverContent>
+      </Popover>
       <Popover open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
         <PopoverTrigger asChild>
           <Button
@@ -375,7 +422,7 @@ function ActionsMenu({ workflowId }: { workflowId: string }) {
                     toast.warning("Workflow deleted")
                     setIsDeleteOpen(false)
                     router.push("/")
-                  } catch (err) {
+                  } catch {
                     toast.error("Failed to delete workflow")
                     setIsDeleteOpen(false)
                   }
@@ -407,9 +454,9 @@ function RunButton({ workflowId }: { workflowId: string }) {
         onClick={() => {
           startTransition(async () => {
             try {
-              await cancelWorkflowRunAction(runId)
-              toast.success("Run cancelled")
-            } catch (err) {
+              await cancelWorkflowRunAction({ workflowId, runId })
+              toast.warning("Run cancelled")
+            } catch {
               toast.error("Failed to cancel run")
             }
           })
@@ -435,7 +482,12 @@ function RunButton({ workflowId }: { workflowId: string }) {
           return
         }
         startTransition(async () => {
-          await runWorkflowAction({ id: workflowId, graph })
+          try {
+            await runWorkflowAction({ id: workflowId, graph })
+            toast.success("Workflow run started")
+          } catch {
+            toast.error("Failed to start workflow run")
+          }
         })
       }}
     >
@@ -451,19 +503,16 @@ function RunButton({ workflowId }: { workflowId: string }) {
 
 export function RightSidebar({ workflowId }: { workflowId: string }) {
   const [tab, setTab] = useState("toolbar")
-
-  // TODO: read the currently selected node from React Flow.
   const selected = useStore((s) => s.nodes.find((n) => n.selected)) as
     StepNodeType | undefined
+  const [previousSelectedId, setPreviousSelectedId] = useState(selected?.id)
 
-  // Auto-switch to the Editor tab when a node is selected.
-  useEffect(() => {
-    if (selected) {
-      setTab("editor")
-    } else {
-      setTab("toolbar")
-    }
-  }, [selected?.id])
+  // Reset local state while rendering when the selected node changes. This
+  // avoids a post-render flicker and keeps each node's inspector independent.
+  if (selected?.id !== previousSelectedId) {
+    setPreviousSelectedId(selected?.id)
+    setTab(selected ? "editor" : "toolbar")
+  }
 
   return (
     <ResizablePanel
@@ -512,7 +561,7 @@ export function RightSidebar({ workflowId }: { workflowId: string }) {
             value="editor"
             className="m-0 h-full flex-col outline-none data-[state=active]:flex"
           >
-            <Inspector node={selected} />
+            <Inspector key={selected?.id} node={selected} />
           </TabsContent>
         </div>
       </Tabs>

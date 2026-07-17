@@ -9,6 +9,8 @@ import { sendEmail } from "./send-email"
 export type NodeContext = {
   values: Record<string, string>
   getStagehand: () => Promise<Stagehand>
+  runId: string
+  nodeId: string
 }
 export type NodeExecutor = (ctx: NodeContext) => Promise<unknown>
 export const nodeExecutors: Partial<Record<NodeType, NodeExecutor>> = {
@@ -28,10 +30,13 @@ export const nodeExecutors: Partial<Record<NodeType, NodeExecutor>> = {
     }),
   agent: async ({ values, getStagehand }) =>
     agent({ stagehand: await getStagehand(), instruction: values.instruction }),
-  "send-email": async ({ values }) =>
+  "send-email": async ({ values, runId, nodeId }) =>
     sendEmail({
       to: values.to,
       subject: values.subject,
       body: values.body,
+      // Trigger.dev can retry a failed workflow from its first step. Keep this
+      // side effect idempotent within one run so a retry never sends twice.
+      idempotencyKey: `workflow-run/${runId}/node/${nodeId}`,
     }),
 } satisfies Record<ActionNodeType, NodeExecutor>

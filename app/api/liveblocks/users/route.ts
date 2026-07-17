@@ -1,50 +1,55 @@
 import { auth, clerkClient } from "@clerk/nextjs/server"
 
+// `Liveblocks` is a global interface declared in liveblocks.config.ts.
+type UserInfo = Liveblocks["UserMeta"]["info"]
+
 export async function POST(request: Request) {
   const { userId, orgId } = await auth()
 
-  // Require an authed user + org
   if (!userId || !orgId) {
     return new Response("Unauthorized", { status: 401 })
   }
 
+  let userIds: unknown
   try {
-    const { userIds } = await request.json()
-
-    if (!Array.isArray(userIds) || userIds.length === 0) {
-      return new Response(JSON.stringify([]), { status: 200 })
-    }
-
-    const client = await clerkClient()
-    const usersResult = await client.users.getUserList({ userId: userIds })
-
-    // Support both Clerk v4 (returns array directly) and v5+ (returns { data: array })
-    const usersList = Array.isArray(usersResult)
-      ? usersResult
-      : usersResult.data
-
-    // Return their display info (name, avatar) in the same order, null for unknown ones
-    const usersData = userIds.map((id) => {
-      const user = usersList.find((u) => u.id === id)
-      if (user) {
-        return {
-          name: String(
-            user.firstName && user.lastName
-              ? `${user.firstName} ${user.lastName}`
-              : user.firstName || "Anonymous"
-          ),
-          avatar: String(user.imageUrl || ""),
-        }
-      }
-      return null
-    })
-
-    return new Response(JSON.stringify(usersData), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    })
-  } catch (error) {
-    console.error("Error fetching liveblocks users from Clerk:", error)
-    return new Response("Internal Server Error", { status: 500 })
+    ;({ userIds } = await request.json())
+  } catch {
+    return new Response("Invalid JSON body", { status: 400 })
   }
+
+  if (!Array.isArray(userIds) || userIds.some((id) => typeof id !== "string")) {
+    return new Response("Expected { userIds: string[] }", { status: 400 })
+  }
+
+  if (userIds.length === 0) {
+    return Response.json([])
+  }
+
+  // Only resolve users from the caller's organization. Without this filter a
+  // member could harvest profile data for arbitrary Clerk user ids.
+  const client = await clerkClient()
+  const { data: users } = await client.users.getUserList({
+    userId: userIds,
+    organizationId: [orgId],
+    limit: userIds.length,
+  })
+  const usersById = new Map(users.map((user) => [user.id, user]))
+
+  // Preserve Liveblocks' requested order and represent unavailable users as
+  // null, which is the shape expected by resolveUsers.
+  const resolved: (UserInfo | null)[] = userIds.map((id) => {
+    const user = usersById.get(id)
+    if (!user) return null
+
+    return {
+      name:
+        user.fullName ??
+        user.username ??
+        user.primaryEmailAddress?.emailAddress ??
+        "Anonymous",
+      avatar: user.imageUrl,
+    }
+  })
+
+  return Response.json(resolved)
 }

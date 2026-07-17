@@ -1,11 +1,15 @@
 "use client"
 
-import { createContext, useContext } from "react"
+import { createContext, useContext, useMemo } from "react"
 import { useRealtimeRunsWithTag } from "@trigger.dev/react-hooks"
 import type { RunStep, runWorkflowTask } from "../tasks/run-workflow"
 
+type WorkflowRun = ReturnType<
+  typeof useRealtimeRunsWithTag<typeof runWorkflowTask>
+>["runs"][number]
+
 type WorkflowRunsContextType = {
-  runs: any[]
+  runs: WorkflowRun[]
   error: Error | undefined
 }
 
@@ -29,8 +33,13 @@ export function WorkflowRunsProvider({
     }
   )
 
+  const value = useMemo<WorkflowRunsContextType>(
+    () => ({ runs, error }),
+    [runs, error]
+  )
+
   return (
-    <WorkflowRunsContext.Provider value={{ runs, error }}>
+    <WorkflowRunsContext.Provider value={value}>
       {children}
     </WorkflowRunsContext.Provider>
   )
@@ -46,23 +55,29 @@ export function useLatestRunSteps() {
 
   const { runs } = context
 
-  if (!runs || runs.length === 0) {
-    return { steps: [] as RunStep[], isLive: false }
-  }
+  return useMemo(() => {
+    const latestRun = runs.reduce<WorkflowRun | undefined>((latest, run) => {
+      if (!latest || run.createdAt > latest.createdAt) return run
+      return latest
+    }, undefined)
 
-  const latestRun = runs[0]
-  const isLive =
-    latestRun.status === "QUEUED" || latestRun.status === "EXECUTING"
+    if (!latestRun) {
+      return { steps: [] as RunStep[], isLive: false }
+    }
 
-  const finalSteps = latestRun.output?.steps as RunStep[] | undefined
-  const metadataSteps = latestRun.metadata?.steps as RunStep[] | undefined
+    const isLive =
+      latestRun.status === "QUEUED" || latestRun.status === "EXECUTING"
+    const finalSteps = latestRun.output?.steps as RunStep[] | undefined
+    const metadataSteps = latestRun.metadata?.steps as RunStep[] | undefined
+    const finalSessionId = latestRun.output?.sessionId as string | undefined
+    const metadataSessionId = latestRun.metadata?.sessionId as
+      string | undefined
 
-  const steps = finalSteps ?? metadataSteps ?? []
-
-  const finalSessionId = latestRun.output?.sessionId as string | undefined
-  const metadataSessionId = latestRun.metadata?.sessionId as string | undefined
-
-  const sessionId = finalSessionId ?? metadataSessionId
-
-  return { steps, isLive, sessionId, runId: latestRun.id }
+    return {
+      steps: finalSteps ?? metadataSteps ?? [],
+      isLive,
+      sessionId: finalSessionId ?? metadataSessionId,
+      runId: latestRun.id,
+    }
+  }, [runs])
 }

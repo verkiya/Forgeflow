@@ -16,12 +16,10 @@ import {
 import { createWorkflowAction } from "@/features/workflows/actions"
 import { generateSlug } from "@/features/workflows/lib/generate-slug"
 import { toast } from "sonner"
-import { useProGate } from "@/features/workflows/hooks/use-pro-gate"
 
 export default function Page() {
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
-  const { isPro, upgrade } = useProGate()
   return (
     <div className="flex min-h-svh flex-col">
       {/* Top bar */}
@@ -46,17 +44,13 @@ export default function Page() {
             size="lg"
             disabled={isPending}
             onClick={() => {
-              if (!isPro) {
-                upgrade()
-                return
-              }
               const slug = generateSlug()
               startTransition(async () => {
                 try {
                   const res = await createWorkflowAction(slug)
                   toast.success("Workflow created")
                   router.push(`/workflows/${res.id}`)
-                } catch (error) {
+                } catch {
                   toast.error("Failed to create workflow")
                 }
               })

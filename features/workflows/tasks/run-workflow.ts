@@ -12,13 +12,16 @@ export type RunStep = {
   title: string
   startedAt?: number
   durationMs?: number
-  output?: any
+  output?: unknown
   error?: string
 }
 
 export const runWorkflowTask = task({
   id: "run-workflow",
-  run: async ({ workflowId, orgId }: { workflowId: string; orgId: string }) => {
+  run: async (
+    { workflowId, orgId }: { workflowId: string; orgId: string },
+    { ctx }
+  ) => {
     const workflow = await getWorkflow(orgId, workflowId)
     if (!workflow?.graph) throw new Error(`Workflow ${workflowId} has no graph`)
     const { nodes, edges } = workflow.graph
@@ -41,13 +44,20 @@ export const runWorkflowTask = task({
         title: node.data.title,
       }
     })
-    metadata.set("steps", steps)
+    // Executors return runtime values, while Trigger metadata accepts JSON.
+    // Node outputs are serialized by the SDK at this boundary for the console.
+    const publishSteps = () =>
+      metadata.set(
+        "steps",
+        steps as unknown as Parameters<typeof metadata.set>[1]
+      )
+    publishSteps()
 
     const updateStep = async (stepId: string, updates: Partial<RunStep>) => {
       const step = steps.find((s) => s.id === stepId)
       if (step) {
         Object.assign(step, updates)
-        metadata.set("steps", steps)
+        publishSteps()
         await metadata.flush()
       }
     }
@@ -70,49 +80,57 @@ export const runWorkflowTask = task({
       }
       return stagehand
     }
-    const outputs: Record<string, any> = {}
-    for (const id of order) {
-      const node = byId.get(id)!
-      logger.log(`Running step: ${node.data.title}`)
+    const outputs: Record<string, unknown> = {}
 
-      await updateStep(id, { status: "running", startedAt: Date.now() })
-      const startTime = performance.now()
+    try {
+      for (const id of order) {
+        const node = byId.get(id)!
+        logger.log(`Running step: ${node.data.title}`)
 
-      const executor = nodeExecutors[node.data.type]
-      if (executor) {
-        const interpolatedValues: Record<string, string> = {}
-        for (const [key, value] of Object.entries(node.data.values)) {
-          interpolatedValues[key] = interpolate(value, outputs)
-        }
+        await updateStep(id, { status: "running", startedAt: Date.now() })
+        const startedAt = Date.now()
 
-        try {
-          const result = await executor({
-            values: interpolatedValues,
-            getStagehand,
-          })
-          outputs[id] = result
+        const executor = nodeExecutors[node.data.type]
+        if (executor) {
+          const interpolatedValues: Record<string, string> = {}
+          for (const [key, value] of Object.entries(node.data.values)) {
+            interpolatedValues[key] = interpolate(value, outputs)
+          }
+
+          try {
+            const result = await executor({
+              values: interpolatedValues,
+              getStagehand,
+              runId: ctx.run.id,
+              nodeId: id,
+            })
+            outputs[id] = result
+            await updateStep(id, {
+              status: "done",
+              output: result,
+              durationMs: Date.now() - startedAt,
+            })
+          } catch (error) {
+            await updateStep(id, {
+              status: "failed",
+              error: error instanceof Error ? error.message : String(error),
+              durationMs: Date.now() - startedAt,
+            })
+            throw error
+          }
+        } else {
           await updateStep(id, {
             status: "done",
-            output: result,
-            durationMs: performance.now() - startTime,
+            durationMs: Date.now() - startedAt,
           })
-        } catch (error: any) {
-          await updateStep(id, {
-            status: "failed",
-            error: error?.message || String(error),
-            durationMs: performance.now() - startTime,
-          })
-          await stagehand?.close()
-          throw error
         }
-      } else {
-        await updateStep(id, {
-          status: "done",
-          durationMs: performance.now() - startTime,
-        })
       }
+
+      return { steps, sessionId }
+    } finally {
+      // A cancelled task or an exception outside an executor still owns the
+      // Browserbase session. Closing in finally prevents leaked sessions.
+      await stagehand?.close()
     }
-    await stagehand?.close()
-    return { steps, sessionId }
   },
 })

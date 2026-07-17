@@ -1,5 +1,3 @@
-import { Hexagon } from "lucide-react"
-
 const ForgeflowIcon = ({ className }: { className?: string }) => (
   <svg
     viewBox="0 0 71 81"

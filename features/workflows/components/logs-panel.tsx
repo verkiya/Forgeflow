@@ -3,7 +3,6 @@ import { NodeIcon } from "./node-icon"
 import { type NodeType } from "@/features/workflows/nodes/node-registry"
 import { cn } from "@/lib/utils"
 import prettyMilliseconds from "pretty-ms"
-import type { RunStep } from "../tasks/run-workflow"
 import { Video } from "lucide-react"
 
 export function LogsPanel({

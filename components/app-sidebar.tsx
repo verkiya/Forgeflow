@@ -18,7 +18,7 @@ import { WorkflowNav } from "@/features/workflows/components/workflow-nav"
 export async function AppSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
-  const { orgId } = await auth()
+  const { orgId, has } = await auth()
   const workflows = orgId ? await listWorkflows(orgId) : []
 
   return (
@@ -27,7 +27,7 @@ export async function AppSidebar({
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem className="mt-2 mb-2 px-2">
-            <Link href="/" className="flex items-center">
+            <Link href="/" className="flex items-center gap-2">
               <Image
                 src="/forgeflow.svg"
                 alt="Forgeflow Logo"
@@ -35,9 +35,20 @@ export async function AppSidebar({
                 height={30}
                 className="shrink-0"
               />
-              <span className="-ml-0.5 bg-gradient-to-br from-primary to-[oklch(0.63_0.13_159)] bg-clip-text text-2xl font-bold tracking-tighter text-transparent group-data-[collapsible=icon]:hidden">
-                orgeflow
-              </span>
+              <div className="flex items-center gap-1.5 group-data-[collapsible=icon]:hidden">
+                <span className="-ml-0.5 bg-gradient-to-br from-primary to-[oklch(0.63_0.13_159)] bg-clip-text text-2xl font-bold tracking-tighter text-transparent">
+                  orgeflow
+                </span>
+                {has({ plan: "pro" }) ? (
+                  <span className="rounded-full bg-primary/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">
+                    Pro
+                  </span>
+                ) : (
+                  <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    Free
+                  </span>
+                )}
+              </div>
             </Link>
           </SidebarMenuItem>
           <SidebarMenuItem>
@@ -78,6 +89,28 @@ export async function AppSidebar({
       {/* ── Footer: User Button ── */}
       <SidebarFooter>
         <SidebarMenu>
+          <SidebarMenuItem className="mb-2 px-2">
+            <SidebarMenuButton asChild className="w-full">
+              <Link href="/pricing" className="flex items-center gap-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="lucide lucide-credit-card"
+                >
+                  <rect width="20" height="14" x="2" y="5" rx="2" />
+                  <line x1="2" x2="22" y1="10" y2="10" />
+                </svg>
+                <span>Billing</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
           <SidebarMenuItem>
             <UserButton
               showName

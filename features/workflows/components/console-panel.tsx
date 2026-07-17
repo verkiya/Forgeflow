@@ -11,9 +11,9 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable"
 
-export function ConsolePanel() {
+export function ConsolePanel({ workflowId }: { workflowId: string }) {
   const [selectedStepId, setSelectedStepId] = useState<string | null>(null)
-  const { steps, sessionId } = useLatestRunSteps()
+  const { steps, sessionId, runId } = useLatestRunSteps()
 
   const selectedStep = steps.find((s) => s.id === selectedStepId)
 
@@ -30,8 +30,12 @@ export function ConsolePanel() {
         <>
           <ResizableHandle withHandle />
           <ResizablePanel minSize={20} defaultSize={50}>
-            {selectedStepId === "replay" && sessionId ? (
-              <SessionReplay sessionId={sessionId} />
+            {selectedStepId === "replay" && sessionId && runId ? (
+              <SessionReplay
+                workflowId={workflowId}
+                runId={runId}
+                sessionId={sessionId}
+              />
             ) : (
               <InspectorPanel step={selectedStep} />
             )}
