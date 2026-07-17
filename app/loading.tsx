@@ -45,7 +45,7 @@ export default function Loading() {
         {/* ── Shimmering Text ── */}
         <div className="flex flex-col items-center gap-1">
           <h2 className="bg-gradient-to-r from-foreground/80 via-foreground to-foreground/80 bg-clip-text text-lg font-bold tracking-tight text-transparent">
-            Forgeflow
+            ForgeFlow
           </h2>
           <p className="flex items-center gap-1 text-sm text-muted-foreground">
             <span className="flex gap-0.5">

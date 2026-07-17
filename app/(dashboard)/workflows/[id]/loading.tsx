@@ -84,7 +84,7 @@ export default function Loading() {
               <ForgeflowIcon className="size-5" />
             </div>
             <div>
-              <h4 className="text-sm font-semibold">Forgeflow</h4>
+              <h4 className="text-sm font-semibold">ForgeFlow</h4>
             </div>
           </div>
           <div className="absolute top-1/2 right-[-6px] size-3 -translate-y-1/2 rounded-full border-2 border-border bg-emerald-500" />

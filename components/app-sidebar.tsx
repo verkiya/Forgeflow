@@ -15,6 +15,7 @@ import {
 import { auth } from "@clerk/nextjs/server"
 import { listWorkflows } from "@/features/workflows/data"
 import { WorkflowNav } from "@/features/workflows/components/workflow-nav"
+import { CreditCardIcon, BookOpen } from "lucide-react"
 export async function AppSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
@@ -27,24 +28,24 @@ export async function AppSidebar({
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem className="mt-2 mb-2 px-2">
-            <Link href="/" className="flex items-center gap-2">
+            <Link href="/" className="flex items-center gap-0">
               <Image
                 src="/forgeflow.svg"
-                alt="Forgeflow Logo"
-                width={30}
-                height={30}
+                alt="ForgeFlow Logo"
+                width={32}
+                height={32}
                 className="shrink-0"
               />
               <div className="flex items-center gap-1.5 group-data-[collapsible=icon]:hidden">
-                <span className="-ml-0.5 bg-gradient-to-br from-primary to-[oklch(0.63_0.13_159)] bg-clip-text text-2xl font-bold tracking-tighter text-transparent">
+                <span className="-ml-3.0! mt-1 bg-gradient-to-br z-2! from-primary to-[oklch(0.63_0.13_159)] bg-clip-text text-2xl font-bold tracking-tighter text-transparent">
                   orgeflow
                 </span>
-                {has({ plan: "pro" }) ? (
-                  <span className="rounded-full bg-primary/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-primary">
+                {has({ plan: "org:pro" }) ? (
+                  <span className="rounded-full bg-primary/20 px-2 py-0.5 text-[10px] font-bold tracking-wider text-primary uppercase">
                     Pro
                   </span>
                 ) : (
-                  <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                  <span className="rounded-full bg-sidebar-border! px-2 py-0.5 text-[10px] font-bold tracking-wider text-muted-foreground uppercase">
                     Free
                   </span>
                 )}
@@ -82,32 +83,39 @@ export async function AppSidebar({
       </SidebarHeader>
 
       {/* ── Content: Workflow List ── */}
-      <SidebarContent>
+      <SidebarContent className="mt-2 group-data-[collapsible=icon]:-mt-4! ">
         <WorkflowNav workflows={workflows} />
       </SidebarContent>
+
+      {/* Vertical 'Forge' text (only visible when collapsed) */}
+      <div className="hidden mb-55 animate-pulse flex-1 flex-col items-center justify-center gap-1 group-data-[collapsible=icon]:flex overflow-hidden">
+        {"Forge".split("").map((letter, i) => (
+          <span
+            key={i}
+            className="text-xl font-bold uppercase bg-gradient-to-b from-primary to-[oklch(0.63_0.13_159)]/80 bg-clip-text text-transparent opacity-60"
+          >
+            {letter}
+          </span>
+        ))}
+      </div>
 
       {/* ── Footer: User Button ── */}
       <SidebarFooter>
         <SidebarMenu>
-          <SidebarMenuItem className="mb-2 px-2">
-            <SidebarMenuButton asChild className="w-full">
+          <SidebarMenuItem className="mb-2 group-data-[collapsible=icon]:hidden">
+            <SidebarMenuButton asChild className="w-full text-center! flex! flex-1! justify-center! border border-primary/20 bg-primary/5 text-primary hover:bg-primary/10 hover:text-primary">
+              <Link href="/learnings" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                <BookOpen className="size-4" />
+                <span>Learnings</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+
+          <SidebarMenuItem className="mb-2">
+            <SidebarMenuButton asChild className="w-full group-data-[collapsible=icon]:!justify-center group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2 text-center! flex! flex-1! justify-center! border">
               <Link href="/pricing" className="flex items-center gap-2">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="lucide lucide-credit-card"
-                >
-                  <rect width="20" height="14" x="2" y="5" rx="2" />
-                  <line x1="2" x2="22" y1="10" y2="10" />
-                </svg>
-                <span>Billing</span>
+               <CreditCardIcon className="size-4" />
+                <span className="group-data-[collapsible=icon]:hidden">Billing</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

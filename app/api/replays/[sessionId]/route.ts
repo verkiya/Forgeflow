@@ -14,7 +14,7 @@ export async function GET(
     return new Response("Unauthorized", { status: 401 })
   }
 
-  if (!has({ plan: "pro" })) {
+  if (!has({ plan: "org:pro" })) {
     return new Response("Pro plan required", { status: 403 })
   }
 

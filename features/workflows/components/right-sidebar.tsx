@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useTransition } from "react"
-import { Pen, Play, Square, Trash2 } from "lucide-react"
+import { Pen, Play, Square, Trash2, Info } from "lucide-react"
 import { useReactFlow, useStore } from "@xyflow/react"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
@@ -22,6 +22,14 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { ResizablePanel } from "@/components/ui/resizable"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   Popover,
@@ -234,7 +242,7 @@ function Palette() {
       def.kind === "trigger" &&
       allNodes.some((n) => (n.data as StepNodeData).kind === "trigger")
     ) {
-      toast.info("Only one Trigger node is allowed per workflow.")
+      toast.warning("Only one Trigger node is allowed per workflow.")
       return
     }
 
@@ -276,9 +284,9 @@ function Palette() {
           <AccordionItem
             key={section.kind}
             value={section.kind}
-            className="mb-3 overflow-hidden rounded-xl border border-white/5 bg-black/20 shadow-sm"
+            className="mb-3  overflow-hidden rounded-xl border border-white/5 bg-black/20 shadow-sm"
           >
-            <AccordionTrigger className="px-4 py-3 text-xs font-semibold text-foreground transition-colors hover:bg-white/5 hover:no-underline">
+            <AccordionTrigger className="px-4 py-3 uppercase! text-xs font-semibold text-foreground transition-colors hover:bg-white/5 hover:no-underline">
               {section.label}
             </AccordionTrigger>
             <AccordionContent className="flex flex-col gap-1 border-t border-white/5 bg-black/40 p-2">
@@ -289,7 +297,7 @@ function Palette() {
                     key={def.type}
                     variant="ghost"
                     onClick={() => add(def.type as NodeType)}
-                    className="group relative h-auto justify-start gap-3 rounded-lg px-3 py-1.5 text-xs font-medium transition-all hover:bg-white/10 hover:text-white"
+                    className="group relative h-auto justify-start gap-3  rounded-lg px-3 py-1.5 text-xs font-medium transition-all hover:bg-white/10 hover:text-white"
                   >
                     <NodeIcon
                       type={def.type as NodeType}
@@ -305,6 +313,7 @@ function Palette() {
           </AccordionItem>
         ))}
       </Accordion>
+
     </Section>
   )
 }
@@ -534,7 +543,7 @@ export function RightSidebar({ workflowId }: { workflowId: string }) {
         </div>
 
         <div className="bg-gradient-to-b from-black/20 to-transparent px-4 py-3">
-          <TabsList className="grid h-11 w-full grid-cols-2 items-center gap-1 rounded-xl border border-white/5 bg-black/40 p-1 shadow-inner">
+          <TabsList className="grid h-12! w-full grid-cols-2 items-center gap-1   rounded-xl border border-white/5 bg-black/40 p-1 shadow-inner">
             <TabsTrigger
               value="toolbar"
               className="h-full rounded-lg text-xs font-bold tracking-wide transition-all data-[state=active]:bg-primary/20 data-[state=active]:text-primary data-[state=active]:shadow-sm"

@@ -78,6 +78,22 @@ const lessons = [
     evidence: "actions.ts and app/api/replays/[sessionId]/route.ts",
     icon: LockKeyhole,
   },
+  {
+    title: "Manifest requirements are not runtime validation",
+    area: "Input safety",
+    detail:
+      "A node field can be marked required in the registry and highlighted in the editor, yet the current server validator checks only graph structure. Treat node values as untrusted executor input until field-level validation exists on both sides of the boundary.",
+    evidence: "node-registry.ts and lib/validate-graph.ts",
+    icon: Gauge,
+  },
+  {
+    title: "Billing configuration is not execution policy",
+    area: "Product policy",
+    detail:
+      "Clerk Billing advertises several plan features, but ForgeFlow code currently enforces only the Pro plan for Agent execution and replay. A plan label or configured feature has no effect until a server boundary checks it.",
+    evidence: "billing.json, use-pro-gate.ts, actions.ts",
+    icon: KeyRound,
+  },
 ]
 
 const debugging = [
@@ -100,6 +116,16 @@ const debugging = [
     symptom: "An email node looks successful without a message id",
     check:
       "Resend returns errors in its response object rather than throwing. Treat an error or missing data object as a failed step, then verify the Resend API key and sender domain.",
+  },
+  {
+    symptom: "A visually required node field is empty",
+    check:
+      "The current graph validator deliberately checks only one Start node, at least one edge, and no cycle. Inspect the executor input and add explicit validation before relying on a red required marker as a safety boundary.",
+  },
+  {
+    symptom: "Telemetry is silent or unexpectedly expensive",
+    check:
+      "Check SENTRY_DSN first, then review the current 1.0 trace sample rate and browser Replay sampling. The sample Sentry page and API are probes; they are not evidence that ordinary product errors are correctly classified.",
   },
 ]
 
@@ -205,6 +231,10 @@ const deliberateLimits = [
   "Workflow edits become the executable database snapshot when Run saves a validated graph; there is no separate explicit Save command yet.",
   "Trigger metadata is live progress, not a durable ForgeFlow run-history data model.",
   "Email content is sent as text; do not silently change its semantics to HTML without a product decision and sanitization design.",
+  "The replay player selects the first Browserbase page only; multi-page recordings need a deliberate page-selection design.",
+  "Workflow deletion can leave a Liveblocks room behind because room cleanup is best-effort after the database row has been removed.",
+  "The public /test route is a design-system sandbox, and the Sentry example routes are integration probes. Neither represents a customer workflow capability.",
+  "There is no application-level rate limiting and no schema index beyond the workflow primary key; measure and design those controls before claiming high-scale behavior.",
   "The application has no automated test suite yet. Typecheck, lint, production build, and a real organization-scoped run are the current release floor.",
   "Transitive dependency advisories remain upstream. Do not use npm audit fix --force without an approved compatibility plan and a full rebuild.",
 ]
@@ -222,10 +252,6 @@ export default function LearningsPage() {
             Back to ForgeFlow
           </Link>
           <div className="max-w-3xl">
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold tracking-[0.18em] text-primary uppercase">
-              <Wrench className="size-3.5" />
-              Repository memory
-            </div>
             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
               ForgeFlow engineering learnings
             </h1>
@@ -239,14 +265,6 @@ export default function LearningsPage() {
       </div>
 
       <div className="mx-auto max-w-6xl px-6 py-12 lg:px-8 lg:py-16">
-        <section className="grid gap-4 sm:grid-cols-3">
-          <Stat
-            label="Reference concepts"
-            value={lessons.length + invariants.length}
-          />
-          <Stat label="System boundaries" value={boundaries.length} />
-          <Stat label="Change playbooks" value={changePlaybooks.length} />
-        </section>
 
         <section className="mt-16">
           <SectionHeading

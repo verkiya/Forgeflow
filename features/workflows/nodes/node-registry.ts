@@ -30,6 +30,7 @@ export type NodeDefinition = {
   type: string
   kind: StepNodeKind
   label: string
+  description: string
   icon: LucideIcon
   accent: string // Tailwind classes for the icon chip color
   colorBorder: string
@@ -43,6 +44,7 @@ export const nodeRegistry = {
     type: "start",
     kind: "trigger",
     label: "Start",
+    description: "The entry point of your workflow. Triggered manually, by webhook, or on a schedule.",
     icon: MousePointerClick,
     accent: "bg-blue-500 text-white",
     colorBorder: "border-blue-500",
@@ -54,6 +56,7 @@ export const nodeRegistry = {
     type: "open-url",
     kind: "action",
     label: "Open URL",
+    description: "Navigates the automated browser to a specific web address to begin interaction.",
     icon: Globe,
     accent: "bg-emerald-500 text-white",
     colorBorder: "border-emerald-500",
@@ -75,6 +78,7 @@ export const nodeRegistry = {
     type: "act",
     kind: "action",
     label: "Act",
+    description: "Executes a specific interaction on the page (like clicking a button or filling a form) using AI.",
     icon: MousePointer2,
     accent: "bg-orange-500 text-white",
     colorBorder: "border-orange-500",
@@ -98,6 +102,7 @@ export const nodeRegistry = {
     type: "extract",
     kind: "action",
     label: "Extract",
+    description: "Reads the current page and extracts structured data based on your prompt.",
     icon: FileJson,
     accent: "bg-purple-500 text-white",
     colorBorder: "border-purple-500",
@@ -117,6 +122,7 @@ export const nodeRegistry = {
     type: "observe",
     kind: "action",
     label: "Observe",
+    description: "Analyzes the page to find interactive elements and suggests possible next actions.",
     icon: Eye,
     accent: "bg-amber-500 text-white",
     colorBorder: "border-amber-500",
@@ -136,6 +142,7 @@ export const nodeRegistry = {
     type: "agent",
     kind: "action",
     label: "Agent",
+    description: "Hands over control to an autonomous AI agent to complete a multi-step objective.",
     icon: Bot,
     accent: "bg-indigo-500 text-white",
     colorBorder: "border-indigo-500",
@@ -160,6 +167,7 @@ export const nodeRegistry = {
     type: "send-email",
     kind: "action",
     label: "Send Email",
+    description: "Sends an automated email. Useful for alerting you when data has been successfully extracted.",
     icon: Mail,
     accent: "bg-rose-500 text-white",
     colorBorder: "border-rose-500",

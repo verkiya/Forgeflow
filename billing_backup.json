@@ -1,4 +1,4 @@
-{
+﻿{
   "billing": {
     "features": {
       "all_free": {
@@ -56,14 +56,6 @@
         "jwt_value": "",
         "name": "Unlimited workflows",
         "publicly_visible": true
-      },
-      "session_replay": {
-        "avatar_url": "",
-        "description": "Watch full browser sessions",
-        "include_in_jwt": true,
-        "jwt_value": "",
-        "name": "Session replay",
-        "publicly_visible": true
       }
     },
     "free_trial_requires_payment_method": true,
@@ -95,8 +87,7 @@
           "all_free",
           "pro_agent",
           "priority_queue",
-          "premium_support",
-          "session_replay"
+          "premium_support"
         ],
         "free_trial_days": 7,
         "free_trial_enabled": true,

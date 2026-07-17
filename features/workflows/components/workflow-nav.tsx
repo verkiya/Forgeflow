@@ -68,6 +68,7 @@ export function WorkflowNav({ workflows }: { workflows: Workflow[] }) {
       try {
         const res = await createWorkflowAction(slug)
         router.push(`/workflows/${res.id}`)
+        toast.info("Creating Workflow")
       } catch {
         toast.error("Failed to create workflow")
       }
@@ -84,7 +85,7 @@ export function WorkflowNav({ workflows }: { workflows: Workflow[] }) {
                 <PopoverTrigger asChild>
                   <SidebarMenuButton
                     tooltip="Workflows"
-                    className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                    className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground border"
                   >
                     <WorkflowIcon />
                     <span className="sr-only">Workflows</span>
@@ -99,12 +100,12 @@ export function WorkflowNav({ workflows }: { workflows: Workflow[] }) {
                     <Button
                       onClick={handleCreateWorkflow}
                       disabled={isPending}
-                      className="flex w-full items-center justify-center gap-2 rounded-md border border-dashed border-border/60 bg-transparent p-2 text-xs font-medium text-muted-foreground transition-all hover:border-primary/50 hover:bg-primary/5 hover:text-primary"
+                      className="flex w-full items-center justify-center gap-2 rounded-md border border-dashed border-white-600/40 bg-transparent p-2 text-xs font-medium text-muted-foreground transition-all hover:border-primary/50 hover:bg-primary/5 hover:text-primary"
                     >
                       {isPending ? (
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
                       ) : (
-                        <Plus className="h-3.5 w-3.5 text-primary!  " />
+                        <Plus className="h-3.5 w-3.5 text-primary!" />
                       )}
                       <span>{isPending ? "Creating..." : "New Workflow"}</span>
                     </Button>
