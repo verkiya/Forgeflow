@@ -104,7 +104,7 @@ export function WorkflowNav({ workflows }: { workflows: Workflow[] }) {
                       {isPending ? (
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
                       ) : (
-                        <Plus className="h-3.5 w-3.5 text-primary!  " />
+                        <Plus className="h-3.5 w-3.5 text-primary!" />
                       )}
                       <span>{isPending ? "Creating..." : "New Workflow"}</span>
                     </Button>
