@@ -83,15 +83,27 @@ export async function AppSidebar({
       </SidebarHeader>
 
       {/* ── Content: Workflow List ── */}
-      <SidebarContent>
+      <SidebarContent className="mt-2 group-data-[collapsible=icon]:-mt-4! ">
         <WorkflowNav workflows={workflows} />
       </SidebarContent>
+
+      {/* Vertical 'Forge' text (only visible when collapsed) */}
+      <div className="hidden mb-55 animate-pulse flex-1 flex-col items-center justify-center gap-1 group-data-[collapsible=icon]:flex overflow-hidden">
+        {"Forge".split("").map((letter, i) => (
+          <span
+            key={i}
+            className="text-xl font-bold uppercase bg-gradient-to-b from-primary to-[oklch(0.63_0.13_159)]/80 bg-clip-text text-transparent opacity-60"
+          >
+            {letter}
+          </span>
+        ))}
+      </div>
 
       {/* ── Footer: User Button ── */}
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem className="mb-2">
-            <SidebarMenuButton asChild className="w-full group-data-[collapsible=icon]:!justify-center group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2">
+            <SidebarMenuButton asChild className="w-full group-data-[collapsible=icon]:!justify-center group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2 text-center! flex! flex-1! justify-center! border">
               <Link href="/pricing" className="flex items-center gap-2">
                <CreditCardIcon className="size-4" />
                 <span className="group-data-[collapsible=icon]:hidden">Billing</span>
