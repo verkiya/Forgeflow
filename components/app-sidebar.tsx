@@ -15,6 +15,7 @@ import {
 import { auth } from "@clerk/nextjs/server"
 import { listWorkflows } from "@/features/workflows/data"
 import { WorkflowNav } from "@/features/workflows/components/workflow-nav"
+import { CreditCardIcon } from "lucide-react"
 export async function AppSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
@@ -89,25 +90,11 @@ export async function AppSidebar({
       {/* ── Footer: User Button ── */}
       <SidebarFooter>
         <SidebarMenu>
-          <SidebarMenuItem className="mb-2 px-2">
-            <SidebarMenuButton asChild className="w-full">
+          <SidebarMenuItem className="mb-2">
+            <SidebarMenuButton asChild className="w-full group-data-[collapsible=icon]:!justify-center group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2">
               <Link href="/pricing" className="flex items-center gap-2">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="lucide lucide-credit-card"
-                >
-                  <rect width="20" height="14" x="2" y="5" rx="2" />
-                  <line x1="2" x2="22" y1="10" y2="10" />
-                </svg>
-                <span>Billing</span>
+               <CreditCardIcon className="size-4" />
+                <span className="group-data-[collapsible=icon]:hidden">Billing</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
