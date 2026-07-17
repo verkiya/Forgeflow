@@ -8,6 +8,8 @@ export type NodeField = {
   key: string
   label: string
   placeholder?: string
+  multiline?: boolean
+  required?: boolean
 }
 
 // A node type's manifest entry. Add a node by adding an entry to nodeRegistry.
@@ -41,7 +43,14 @@ export const nodeRegistry = {
     accent: "bg-emerald-500 text-white",
     colorBorder: "border-emerald-500",
     colorHandleHover: "hover:bg-emerald-500!",
-    fields: [{ key: "url", label: "URL", placeholder: "https://youtube.com" }],
+    fields: [
+      {
+        key: "url",
+        label: "URL",
+        placeholder: "https://youtube.com",
+        required: true,
+      },
+    ],
   },
 } satisfies Record<string, NodeDefinition>
 
@@ -57,3 +66,6 @@ export type StepNodeData = {
 }
 
 export type StepNodeType = Node<StepNodeData, "step">
+export type ActionNodeType = {
+  [K in NodeType]: (typeof nodeRegistry)[K]["kind"] extends "action" ? K : never
+}[NodeType]
