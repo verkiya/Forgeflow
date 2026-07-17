@@ -3,8 +3,10 @@ import { Handle, Position, type NodeProps } from "@xyflow/react"
 
 import { nodeRegistry, type StepNodeType } from "../nodes/node-registry"
 import { cn } from "@/lib/utils"
+import { useLatestRunSteps } from "./workflow-runs-provider"
+import { Loader2 } from "lucide-react"
 
-function StepNodeComponent({ data, selected }: NodeProps<StepNodeType>) {
+function StepNodeComponent({ id, data, selected }: NodeProps<StepNodeType>) {
   const { type, kind, title, values } = data
   const def = nodeRegistry[type]
   const Icon = def.icon
@@ -12,11 +14,22 @@ function StepNodeComponent({ data, selected }: NodeProps<StepNodeType>) {
   // A trigger starts the flow and takes no input, so it has no target handle.
   const hasTarget = kind !== "trigger"
 
+  const { steps, isLive } = useLatestRunSteps()
+  const stepStatus = steps.find((s) => s.id === id)?.status
+  const isRunning = isLive && stepStatus === "running"
+  const isFailed = stepStatus === "failed"
+
   return (
     <div
       className={cn(
         "max-w-80 min-w-50 rounded-(--radius) border-2 bg-card text-card-foreground shadow-sm transition-all hover:shadow-md",
-        selected ? cn(def.colorBorder, "shadow-md") : "border-border"
+        isRunning
+          ? "border-yellow-500 shadow-md"
+          : isFailed
+            ? "border-destructive shadow-md"
+            : selected
+              ? cn(def.colorBorder, "shadow-md")
+              : "border-border"
       )}
     >
       {hasTarget && (
@@ -38,7 +51,11 @@ function StepNodeComponent({ data, selected }: NodeProps<StepNodeType>) {
             def.accent
           )}
         >
-          <Icon className="size-4" />
+          {isRunning ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : (
+            <Icon className="size-4" />
+          )}
         </div>
         <span className="text-sm font-semibold">{title}</span>
       </div>

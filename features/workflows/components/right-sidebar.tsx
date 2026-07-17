@@ -6,6 +6,8 @@ import { useReactFlow, useStore } from "@xyflow/react"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 
+import { useUpstreamConnections } from "../hooks/use-upstream-connections"
+
 import {
   Accordion,
   AccordionContent,
@@ -96,10 +98,12 @@ function FieldInput({
   field,
   value,
   onChange,
+  onFocus,
 }: {
   field: NodeField
   value: string
   onChange: (value: string) => void
+  onFocus?: () => void
 }) {
   if (field.multiline) {
     return (
@@ -108,6 +112,7 @@ function FieldInput({
         value={value}
         placeholder={field.placeholder}
         onChange={(e) => onChange(e.target.value)}
+        onFocus={onFocus}
         rows={3}
         className="resize-none"
       />
@@ -120,6 +125,7 @@ function FieldInput({
       value={value}
       placeholder={field.placeholder}
       onChange={(e) => onChange(e.target.value)}
+      onFocus={onFocus}
     />
   )
 }
@@ -127,6 +133,13 @@ function FieldInput({
 // The Editor tab: one input per field on the selected node, or an empty state.
 function Inspector({ node }: { node: StepNodeType | undefined }) {
   const { updateNodeData } = useReactFlow<StepNodeType>()
+  const [lastFocusedField, setLastFocusedField] = useState<string | null>(null)
+  const upstreamConnections = useUpstreamConnections(node)
+
+  useEffect(() => {
+    setLastFocusedField(null)
+  }, [node?.id])
+
   if (!node) {
     return (
       <Section title="Editor">
@@ -137,6 +150,16 @@ function Inspector({ node }: { node: StepNodeType | undefined }) {
 
   const { type, title, values } = node.data
   const def: NodeDefinition = nodeRegistry[type]
+
+  const insertToken = (token: string) => {
+    const fieldKey =
+      lastFocusedField || (def.fields.length > 0 ? def.fields[0].key : null)
+    if (!fieldKey) return
+    const currentVal = values[fieldKey] ?? ""
+    updateNodeData(node.id, {
+      values: { ...values, [fieldKey]: currentVal + token },
+    })
+  }
 
   return (
     <Section title={title} icon={<NodeIcon type={type} />}>
@@ -155,15 +178,40 @@ function Inspector({ node }: { node: StepNodeType | undefined }) {
               <FieldInput
                 field={field}
                 value={values[field.key] ?? ""}
+                onFocus={() => setLastFocusedField(field.key)}
                 onChange={(value) => {
                   updateNodeData(node.id, {
                     values: { ...values, [field.key]: value },
                   })
-                  void value
                 }}
               />
             </div>
           ))
+        )}
+
+        {upstreamConnections.length > 0 && (
+          <div className="mt-4 flex flex-col gap-2 border-t border-white/5 pt-4">
+            <Label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+              Connections
+            </Label>
+            <div className="flex flex-wrap gap-1.5">
+              {upstreamConnections.map((conn) => (
+                <Button
+                  key={conn.token}
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => insertToken(conn.token)}
+                  className="h-6 gap-1.5 rounded-full px-2 text-[10px] font-medium"
+                >
+                  <NodeIcon
+                    type={conn.nodeType}
+                    className="size-4 [&_svg]:size-3"
+                  />
+                  {conn.label}
+                </Button>
+              ))}
+            </div>
+          </div>
         )}
       </div>
     </Section>
