@@ -5,6 +5,9 @@ import { auth } from "@clerk/nextjs/server"
 import { getWorkflow } from "@/features/workflows/data"
 import { liveblocks } from "@/features/workflows/lib/liveblocks"
 import { notFound } from "next/navigation"
+import { auth as triggerAuth } from "@trigger.dev/sdk"
+import { WorkflowRunsProvider } from "@/features/workflows/components/workflow-runs-provider"
+
 export default async function WorkflowPage({
   params,
 }: {
@@ -24,6 +27,12 @@ export default async function WorkflowPage({
       [orgId]: ["room:write"],
     },
   })
+
+  const publicAccessToken = await triggerAuth.createPublicToken({
+    scopes: { read: { tags: [`workflow:${id}`] } },
+    expirationTime: "1hr",
+  })
+
   return (
     <div className="flex min-h-svh flex-col">
       {/* Top bar */}
@@ -33,7 +42,12 @@ export default async function WorkflowPage({
 
       <div className="min-h-0 flex-1 overflow-hidden">
         <Room roomId={id}>
-          <WorkflowShell workflowId={id} />
+          <WorkflowRunsProvider
+            workflowId={id}
+            publicAccessToken={publicAccessToken}
+          >
+            <WorkflowShell workflowId={id} />
+          </WorkflowRunsProvider>
         </Room>
       </div>
     </div>

@@ -1,10 +1,14 @@
 "use client"
 
 import { useState, useEffect, useTransition } from "react"
-import { Play, Trash2, Pen } from "lucide-react"
+import { Play, Trash2, Pen, Square } from "lucide-react"
 import { useReactFlow, useStore } from "@xyflow/react"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
+
+import { useUpstreamConnections } from "../hooks/use-upstream-connections"
+import { useProGate } from "../hooks/use-pro-gate"
+import { Lock } from "lucide-react"
 
 import {
   Accordion,
@@ -38,7 +42,10 @@ import {
 import {
   deleteWorkflowAction,
   runWorkflowAction,
+  cancelWorkflowRunAction,
 } from "@/features/workflows/actions"
+import { NodeIcon } from "./node-icon"
+import { useLatestRunSteps } from "./workflow-runs-provider"
 
 // This file builds up to the RightSidebar component exported at the bottom: a
 // header with workflow actions (delete, run), then two tabs — a Toolbar for
@@ -48,23 +55,6 @@ import {
 // ---------------------------------------------------------------------------
 // Shared pieces — used by both the Toolbar and the Editor.
 // ---------------------------------------------------------------------------
-
-// The accent-colored icon chip, mirroring the node on the canvas.
-function NodeIcon({ type, className }: { type: NodeType; className?: string }) {
-  const def = nodeRegistry[type]
-  const Icon = def.icon
-  return (
-    <span
-      className={cn(
-        "flex size-6 shrink-0 items-center justify-center rounded-md",
-        def.accent,
-        className
-      )}
-    >
-      <Icon className="size-4" />
-    </span>
-  )
-}
 
 // A titled, scrollable panel. Each tab renders its content inside one.
 function Section({
@@ -96,10 +86,12 @@ function FieldInput({
   field,
   value,
   onChange,
+  onFocus,
 }: {
   field: NodeField
   value: string
   onChange: (value: string) => void
+  onFocus?: () => void
 }) {
   if (field.multiline) {
     return (
@@ -108,6 +100,7 @@ function FieldInput({
         value={value}
         placeholder={field.placeholder}
         onChange={(e) => onChange(e.target.value)}
+        onFocus={onFocus}
         rows={3}
         className="resize-none"
       />
@@ -120,6 +113,7 @@ function FieldInput({
       value={value}
       placeholder={field.placeholder}
       onChange={(e) => onChange(e.target.value)}
+      onFocus={onFocus}
     />
   )
 }
@@ -127,6 +121,13 @@ function FieldInput({
 // The Editor tab: one input per field on the selected node, or an empty state.
 function Inspector({ node }: { node: StepNodeType | undefined }) {
   const { updateNodeData } = useReactFlow<StepNodeType>()
+  const [lastFocusedField, setLastFocusedField] = useState<string | null>(null)
+  const upstreamConnections = useUpstreamConnections(node)
+
+  useEffect(() => {
+    setLastFocusedField(null)
+  }, [node?.id])
+
   if (!node) {
     return (
       <Section title="Editor">
@@ -137,6 +138,16 @@ function Inspector({ node }: { node: StepNodeType | undefined }) {
 
   const { type, title, values } = node.data
   const def: NodeDefinition = nodeRegistry[type]
+
+  const insertToken = (token: string) => {
+    const fieldKey =
+      lastFocusedField || (def.fields.length > 0 ? def.fields[0].key : null)
+    if (!fieldKey) return
+    const currentVal = values[fieldKey] ?? ""
+    updateNodeData(node.id, {
+      values: { ...values, [fieldKey]: currentVal + token },
+    })
+  }
 
   return (
     <Section title={title} icon={<NodeIcon type={type} />}>
@@ -155,15 +166,40 @@ function Inspector({ node }: { node: StepNodeType | undefined }) {
               <FieldInput
                 field={field}
                 value={values[field.key] ?? ""}
+                onFocus={() => setLastFocusedField(field.key)}
                 onChange={(value) => {
                   updateNodeData(node.id, {
                     values: { ...values, [field.key]: value },
                   })
-                  void value
                 }}
               />
             </div>
           ))
+        )}
+
+        {upstreamConnections.length > 0 && (
+          <div className="mt-4 flex flex-col gap-2 border-t border-white/5 pt-4">
+            <Label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+              Connections
+            </Label>
+            <div className="flex flex-wrap gap-1.5">
+              {upstreamConnections.map((conn) => (
+                <Button
+                  key={conn.token}
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => insertToken(conn.token)}
+                  className="h-6 gap-1.5 rounded-full px-2 text-[10px] font-medium"
+                >
+                  <NodeIcon
+                    type={conn.nodeType}
+                    className="size-4 [&_svg]:size-3"
+                  />
+                  {conn.label}
+                </Button>
+              ))}
+            </div>
+          </div>
         )}
       </div>
     </Section>
@@ -186,8 +222,14 @@ const definitions = Object.values(nodeRegistry)
 // The Toolbar tab: a button per node type that adds it to the canvas.
 function Palette() {
   const { getNodes, addNodes, getViewport } = useReactFlow()
+  const { isPro, upgrade } = useProGate()
 
   const add = (type: NodeType) => {
+    if (type === "agent" && !isPro) {
+      upgrade()
+      return
+    }
+
     const def = nodeRegistry[type]
     const allNodes = getNodes()
 
@@ -251,13 +293,16 @@ function Palette() {
                     key={def.type}
                     variant="ghost"
                     onClick={() => add(def.type as NodeType)}
-                    className="group h-auto justify-start gap-3 rounded-lg px-3 py-1.5 text-xs font-medium transition-all hover:bg-white/10 hover:text-white"
+                    className="group relative h-auto justify-start gap-3 rounded-lg px-3 py-1.5 text-xs font-medium transition-all hover:bg-white/10 hover:text-white"
                   >
                     <NodeIcon
                       type={def.type as NodeType}
                       className="shadow-sm transition-transform group-hover:scale-110"
                     />
-                    {def.label}
+                    <span className="flex-1 text-left">{def.label}</span>
+                    {def.type === "agent" && !isPro && (
+                      <Lock className="size-3 text-muted-foreground" />
+                    )}
                   </Button>
                 ))}
             </AccordionContent>
@@ -350,6 +395,32 @@ function ActionsMenu({ workflowId }: { workflowId: string }) {
 function RunButton({ workflowId }: { workflowId: string }) {
   const { getNodes, getEdges } = useReactFlow<StepNodeType>()
   const [isPending, startTransition] = useTransition()
+  const { isLive, runId } = useLatestRunSteps()
+
+  if (isLive && runId) {
+    return (
+      <Button
+        size="lg"
+        variant="destructive"
+        className="rounded-full px-5 font-semibold tracking-wide shadow-[0_0_15px_rgba(239,68,68,0.15)] transition-all hover:shadow-[0_0_20px_rgba(239,68,68,0.3)]"
+        disabled={isPending}
+        onClick={() => {
+          startTransition(async () => {
+            try {
+              await cancelWorkflowRunAction(runId)
+              toast.success("Run cancelled")
+            } catch (err) {
+              toast.error("Failed to cancel run")
+            }
+          })
+        }}
+      >
+        <Square fill="currentColor" className="mr-1 size-3.5" />
+        Stop
+      </Button>
+    )
+  }
+
   return (
     <Button
       size="lg"
