@@ -1,6 +1,12 @@
 {
   "version": 1,
   "skills": {
+    "browser": {
+      "source": "browserbase/skills",
+      "sourceType": "github",
+      "skillPath": "skills/browser/SKILL.md",
+      "computedHash": "8e8d48012bce4c8727dd4f73388ad877848c1be1995f1f8cfa5f336d5ac61a9f"
+    },
     "clerk": {
       "source": "clerk/skills",
       "sourceType": "github",
@@ -60,6 +66,18 @@
       "sourceType": "github",
       "skillPath": "skills/features/clerk-webhooks/SKILL.md",
       "computedHash": "4764eeeef1e80ce9757759ef119a3a5e77322383e8a37975d7c8ea718c259ec9"
+    },
+    "fetch": {
+      "source": "browserbase/skills",
+      "sourceType": "github",
+      "skillPath": "skills/fetch/SKILL.md",
+      "computedHash": "c16b8fceac3bcc088837c9c684a05cf8d2481588f1b4aee1ea36c9689ad386cc"
+    },
+    "functions": {
+      "source": "browserbase/skills",
+      "sourceType": "github",
+      "skillPath": "skills/functions/SKILL.md",
+      "computedHash": "43c10ad21a05f69078968095f7267b719dce4d7325cb1a6e9905ca64efebd2fa"
     },
     "liveblocks-best-practices": {
       "source": "liveblocks/skills",
