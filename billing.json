@@ -1,13 +1,70 @@
 {
   "billing": {
     "features": {
-      "unlimited_workflows": { "name": "Unlimited workflows" },
-      "basic_actions": { "name": "Basic triggers and actions" },
-      "community_support": { "name": "Community support" },
-      "all_free": { "name": "All Free features" },
-      "pro_agent": { "name": "Agent node access" },
-      "priority_queue": { "name": "Priority execution queue" },
-      "premium_support": { "name": "Premium support" }
+      "all_free": {
+        "avatar_url": "",
+        "description": "",
+        "include_in_jwt": true,
+        "jwt_value": "",
+        "name": "All Free features",
+        "publicly_visible": true
+      },
+      "basic_actions": {
+        "avatar_url": "",
+        "description": "",
+        "include_in_jwt": true,
+        "jwt_value": "",
+        "name": "Basic triggers and actions",
+        "publicly_visible": true
+      },
+      "community_support": {
+        "avatar_url": "",
+        "description": "here's description",
+        "include_in_jwt": true,
+        "jwt_value": "",
+        "name": "Community support",
+        "publicly_visible": true
+      },
+      "premium_support": {
+        "avatar_url": "",
+        "description": "",
+        "include_in_jwt": true,
+        "jwt_value": "",
+        "name": "Premium support",
+        "publicly_visible": true
+      },
+      "priority_queue": {
+        "avatar_url": "",
+        "description": "",
+        "include_in_jwt": true,
+        "jwt_value": "",
+        "name": "Priority execution queue",
+        "publicly_visible": true
+      },
+      "pro_agent": {
+        "avatar_url": "",
+        "description": "",
+        "include_in_jwt": true,
+        "jwt_value": "",
+        "name": "Agent node access",
+        "publicly_visible": true
+      },
+      "unlimited_workflows": {
+        "avatar_url": "",
+        "description": "",
+        "include_in_jwt": true,
+        "jwt_value": "",
+        "name": "Unlimited workflows",
+        "publicly_visible": true
+      },
+      "session_replay": {
+        "avatar_url": "",
+        "description": "Watch full browser sessions",
+        "include_in_jwt": true,
+        "jwt_value": "",
+        "name": "Session replay",
+        "publicly_visible": true
+      }
     },
     "free_trial_requires_payment_method": true,
     "organization_enabled": true,
@@ -30,15 +87,19 @@
         "publicly_visible": true
       },
       "pro": {
-        "amount": 2900,
+        "amount": 999,
+        "annual_monthly_amount": 0,
         "currency": "usd",
         "description": "Advanced workflows for power users.",
         "features": [
           "all_free",
           "pro_agent",
           "priority_queue",
-          "premium_support"
+          "premium_support",
+          "session_replay"
         ],
+        "free_trial_days": 7,
+        "free_trial_enabled": true,
         "is_recurring": true,
         "name": "Pro",
         "payer_type": "org",
@@ -47,5 +108,5 @@
     },
     "user_enabled": false
   },
-  "config_version": "v1_41b934b4"
+  "config_version": "v1_74d5b208"
 }
