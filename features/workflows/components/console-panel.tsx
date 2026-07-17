@@ -4,6 +4,7 @@ import { useState } from "react"
 import { LogsPanel } from "./logs-panel"
 import { InspectorPanel } from "./inspector-panel"
 import { useLatestRunSteps } from "./workflow-runs-provider"
+import { SessionReplay } from "./session-replay"
 import {
   ResizableHandle,
   ResizablePanel,
@@ -12,7 +13,7 @@ import {
 
 export function ConsolePanel() {
   const [selectedStepId, setSelectedStepId] = useState<string | null>(null)
-  const { steps } = useLatestRunSteps()
+  const { steps, sessionId } = useLatestRunSteps()
 
   const selectedStep = steps.find((s) => s.id === selectedStepId)
 
@@ -29,7 +30,11 @@ export function ConsolePanel() {
         <>
           <ResizableHandle withHandle />
           <ResizablePanel minSize={20} defaultSize={50}>
-            <InspectorPanel step={selectedStep} />
+            {selectedStepId === "replay" && sessionId ? (
+              <SessionReplay sessionId={sessionId} />
+            ) : (
+              <InspectorPanel step={selectedStep} />
+            )}
           </ResizablePanel>
         </>
       )}

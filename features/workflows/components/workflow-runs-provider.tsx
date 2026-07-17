@@ -59,5 +59,10 @@ export function useLatestRunSteps() {
 
   const steps = finalSteps ?? metadataSteps ?? []
 
-  return { steps, isLive }
+  const finalSessionId = latestRun.output?.sessionId as string | undefined
+  const metadataSessionId = latestRun.metadata?.sessionId as string | undefined
+
+  const sessionId = finalSessionId ?? metadataSessionId
+
+  return { steps, isLive, sessionId, runId: latestRun.id }
 }

@@ -1,12 +1,14 @@
 "use client"
 
 import { useState, useEffect, useTransition } from "react"
-import { Play, Trash2, Pen } from "lucide-react"
+import { Play, Trash2, Pen, Square } from "lucide-react"
 import { useReactFlow, useStore } from "@xyflow/react"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 
 import { useUpstreamConnections } from "../hooks/use-upstream-connections"
+import { useProGate } from "../hooks/use-pro-gate"
+import { Lock } from "lucide-react"
 
 import {
   Accordion,
@@ -40,8 +42,10 @@ import {
 import {
   deleteWorkflowAction,
   runWorkflowAction,
+  cancelWorkflowRunAction,
 } from "@/features/workflows/actions"
 import { NodeIcon } from "./node-icon"
+import { useLatestRunSteps } from "./workflow-runs-provider"
 
 // This file builds up to the RightSidebar component exported at the bottom: a
 // header with workflow actions (delete, run), then two tabs — a Toolbar for
@@ -218,8 +222,14 @@ const definitions = Object.values(nodeRegistry)
 // The Toolbar tab: a button per node type that adds it to the canvas.
 function Palette() {
   const { getNodes, addNodes, getViewport } = useReactFlow()
+  const { isPro, upgrade } = useProGate()
 
   const add = (type: NodeType) => {
+    if (type === "agent" && !isPro) {
+      upgrade()
+      return
+    }
+
     const def = nodeRegistry[type]
     const allNodes = getNodes()
 
@@ -283,13 +293,16 @@ function Palette() {
                     key={def.type}
                     variant="ghost"
                     onClick={() => add(def.type as NodeType)}
-                    className="group h-auto justify-start gap-3 rounded-lg px-3 py-1.5 text-xs font-medium transition-all hover:bg-white/10 hover:text-white"
+                    className="group relative h-auto justify-start gap-3 rounded-lg px-3 py-1.5 text-xs font-medium transition-all hover:bg-white/10 hover:text-white"
                   >
                     <NodeIcon
                       type={def.type as NodeType}
                       className="shadow-sm transition-transform group-hover:scale-110"
                     />
-                    {def.label}
+                    <span className="flex-1 text-left">{def.label}</span>
+                    {def.type === "agent" && !isPro && (
+                      <Lock className="size-3 text-muted-foreground" />
+                    )}
                   </Button>
                 ))}
             </AccordionContent>
@@ -382,6 +395,32 @@ function ActionsMenu({ workflowId }: { workflowId: string }) {
 function RunButton({ workflowId }: { workflowId: string }) {
   const { getNodes, getEdges } = useReactFlow<StepNodeType>()
   const [isPending, startTransition] = useTransition()
+  const { isLive, runId } = useLatestRunSteps()
+
+  if (isLive && runId) {
+    return (
+      <Button
+        size="lg"
+        variant="destructive"
+        className="rounded-full px-5 font-semibold tracking-wide shadow-[0_0_15px_rgba(239,68,68,0.15)] transition-all hover:shadow-[0_0_20px_rgba(239,68,68,0.3)]"
+        disabled={isPending}
+        onClick={() => {
+          startTransition(async () => {
+            try {
+              await cancelWorkflowRunAction(runId)
+              toast.success("Run cancelled")
+            } catch (err) {
+              toast.error("Failed to cancel run")
+            }
+          })
+        }}
+      >
+        <Square fill="currentColor" className="mr-1 size-3.5" />
+        Stop
+      </Button>
+    )
+  }
+
   return (
     <Button
       size="lg"

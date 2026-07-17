@@ -9,10 +9,14 @@ import { tasks, runs } from "@trigger.dev/sdk"
 import { redirect } from "next/navigation"
 import { type runWorkflowTask } from "@/features/workflows/tasks/run-workflow"
 export async function createWorkflowAction(name: string) {
-  const { orgId } = await auth()
+  const { orgId, has } = await auth()
 
   if (!orgId) {
     throw new Error("Unauthorized: No active organization")
+  }
+
+  if (!has({ plan: "pro" })) {
+    throw new Error("Unauthorized: Pro plan required to create workflows")
   }
 
   const workflow = await createWorkflow(orgId, name)

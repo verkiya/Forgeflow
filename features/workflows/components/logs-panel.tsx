@@ -4,6 +4,7 @@ import { type NodeType } from "@/features/workflows/nodes/node-registry"
 import { cn } from "@/lib/utils"
 import prettyMilliseconds from "pretty-ms"
 import type { RunStep } from "../tasks/run-workflow"
+import { Video } from "lucide-react"
 
 export function LogsPanel({
   selectedStepId,
@@ -12,7 +13,7 @@ export function LogsPanel({
   selectedStepId: string | null
   onSelectStep: (id: string | null) => void
 }) {
-  const { steps, isLive } = useLatestRunSteps()
+  const { steps, isLive, sessionId } = useLatestRunSteps()
 
   if (steps.length === 0) {
     return (
@@ -73,6 +74,28 @@ export function LogsPanel({
               </button>
             )
           })}
+
+          {sessionId && !isLive && (
+            <button
+              onClick={() =>
+                onSelectStep(selectedStepId === "replay" ? null : "replay")
+              }
+              className={cn(
+                "group flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition-all hover:bg-white/5",
+                selectedStepId === "replay" &&
+                  "bg-white/10 ring-1 ring-white/20"
+              )}
+            >
+              <div className="flex items-center gap-3">
+                <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-blue-500 text-white">
+                  <Video className="size-4" />
+                </span>
+                <span className="font-medium text-blue-400">
+                  Session Replay
+                </span>
+              </div>
+            </button>
+          )}
         </div>
       </div>
     </div>

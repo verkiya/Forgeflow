@@ -7,6 +7,7 @@ import { useTransition } from "react"
 
 import { createWorkflowAction } from "@/features/workflows/actions"
 import { generateSlug } from "@/features/workflows/lib/generate-slug"
+import { useProGate } from "@/features/workflows/hooks/use-pro-gate"
 
 import {
   SidebarGroup,
@@ -60,8 +61,13 @@ export function WorkflowNav({ workflows }: { workflows: Workflow[] }) {
   const { state } = useSidebar()
   const [isPending, startTransition] = useTransition()
   const router = useRouter()
+  const { isPro, upgrade } = useProGate()
 
   const handleCreateWorkflow = () => {
+    if (!isPro) {
+      upgrade()
+      return
+    }
     const slug = generateSlug()
     startTransition(async () => {
       try {
