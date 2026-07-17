@@ -20,7 +20,7 @@ export default function AuthLayout({
 
             <img src="/forgeflow.svg" alt="ForgeFlow" className="size-18 object-contain" />
 
-          <span className="-ml-4!">orgeFlow</span>
+          <span className="-ml-5!">orgeFlow</span>
         </div>
 
         {/* Center Content */}
@@ -98,7 +98,7 @@ export default function AuthLayout({
           </div>
 
           <Button asChild variant="default" className="hover:scale-102! transition-transform">
-            <Link href="/learnings">
+            <Link href="/learnings" target="_blank" rel="noopener noreferrer">
               <BookOpen className="size-4" />
               What I learned building ForgeFlow
             </Link>

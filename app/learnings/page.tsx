@@ -252,10 +252,6 @@ export default function LearningsPage() {
             Back to ForgeFlow
           </Link>
           <div className="max-w-3xl">
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold tracking-[0.18em] text-primary uppercase">
-              <Wrench className="size-3.5" />
-              Repository memory
-            </div>
             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
               ForgeFlow engineering learnings
             </h1>

@@ -15,7 +15,7 @@ import {
 import { auth } from "@clerk/nextjs/server"
 import { listWorkflows } from "@/features/workflows/data"
 import { WorkflowNav } from "@/features/workflows/components/workflow-nav"
-import { CreditCardIcon } from "lucide-react"
+import { CreditCardIcon, BookOpen } from "lucide-react"
 export async function AppSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
@@ -102,6 +102,15 @@ export async function AppSidebar({
       {/* ── Footer: User Button ── */}
       <SidebarFooter>
         <SidebarMenu>
+          <SidebarMenuItem className="mb-2 group-data-[collapsible=icon]:hidden">
+            <SidebarMenuButton asChild className="w-full text-center! flex! flex-1! justify-center! border border-primary/20 bg-primary/5 text-primary hover:bg-primary/10 hover:text-primary">
+              <Link href="/learnings" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                <BookOpen className="size-4" />
+                <span>Learnings</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+
           <SidebarMenuItem className="mb-2">
             <SidebarMenuButton asChild className="w-full group-data-[collapsible=icon]:!justify-center group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2 text-center! flex! flex-1! justify-center! border">
               <Link href="/pricing" className="flex items-center gap-2">
