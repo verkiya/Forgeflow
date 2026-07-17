@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useTransition } from "react"
-import { Pen, Play, Square, Trash2 } from "lucide-react"
+import { Pen, Play, Square, Trash2, Info } from "lucide-react"
 import { useReactFlow, useStore } from "@xyflow/react"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
@@ -22,6 +22,14 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { ResizablePanel } from "@/components/ui/resizable"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   Popover,
@@ -305,6 +313,7 @@ function Palette() {
           </AccordionItem>
         ))}
       </Accordion>
+
     </Section>
   )
 }
