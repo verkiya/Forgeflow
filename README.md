@@ -395,18 +395,6 @@ The following limits are current implementation facts, not guarantees hidden beh
 - Clerk Billing defines more plan features than the application currently enforces. In code, the `pro` plan gates the Agent node and replay; there is no implemented priority queue or workflow-count enforcement.
 - The app has no explicit application-level rate limiting and no automated test suite. Authorization, graph validation, external-service failures, and replay access should be exercised as part of release verification.
 
-## Roadmap
-
-- Persist workflow edits before Run rather than using Run as the save boundary.
-- Add per-run history browsing in the console.
-- Add explicit Save semantics separate from Run.
-- Add graph-level field validation before execution.
-- Add automated coverage for authorization, graph validation, and task execution contracts.
-
-## Learnings
-
-The in-app [engineering learnings](/learnings) page records the architectural boundaries, operational caveats, debugging patterns, and invariants a future maintainer should preserve.
-
 ## License
 
 No license file is currently included. Treat the repository as proprietary until a license is added.
