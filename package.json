@@ -7,7 +7,6 @@
     "dev": "npx concurrently -c \"blue,green\" -n \"next,trigger\" \"next dev\" \"npx trigger.dev@latest dev\"",
     "build": "next build",
     "start": "next start",
-
     "demo": "npm run build && npx concurrently -c \"blue,green\" -n \"next,trigger\" \"npm start\" \"npx trigger.dev@latest dev\"",
     "lint": "eslint",
     "format": "prettier --write \"{app,components,features,hooks,lib}/**/*.{ts,tsx}\" \"*.{ts,tsx}\"",
@@ -31,8 +30,8 @@
     "@neondatabase/serverless": "^1.1.0",
     "@sentry/nextjs": "^10.66.0",
     "@shadcn/react": "^0.2.1",
-    "@trigger.dev/react-hooks": "4.5.4",
-    "@trigger.dev/sdk": "4.5.4",
+    "@trigger.dev/react-hooks": "4.5.5",
+    "@trigger.dev/sdk": "4.5.5",
     "@xyflow/react": "^12.11.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -63,7 +62,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
-    "@trigger.dev/build": "4.5.4",
+    "@trigger.dev/build": "4.5.5",
     "@types/node": "^26",
     "@types/react": "^19",
     "@types/react-dom": "^19",
